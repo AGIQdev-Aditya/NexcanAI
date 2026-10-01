@@ -9,7 +9,8 @@ import IsoCertificateModal from './components/IsoCertificateModal.jsx';
 import { getHealthStatus } from './services/api.js';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'app'
+  // Default directly to the core working application as requested
+  const [currentView, setCurrentView] = useState('app'); // 'app' | 'landing'
   const [activeTab, setActiveTab] = useState('inspect'); // 'inspect' | 'analytics' | 'audit'
   const [systemStatus, setSystemStatus] = useState({ online: false, gemini: false, supabase: false });
   const [currentResult, setCurrentResult] = useState(null);
@@ -70,7 +71,6 @@ export default function App() {
       }
     } catch (err) {
       console.warn('Demo login note:', err.message);
-      // Fallback demo user
       const fallbackUser = {
         id: 'demo-lead-judge',
         email: 'judge.lead@hackathon.ai',
@@ -124,29 +124,26 @@ export default function App() {
           onQuickDemo={handleQuickDemo}
         />
       ) : (
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full animate-fade-in">
+        <main className="flex-1 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 w-full">
           {/* Subheader breadcrumbs inside app view */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 mb-6 border-b border-[#3D180C]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-[#3D180C]">
             <div className="flex items-center space-x-3">
-              <span className="text-xs px-2.5 py-1 rounded-md bg-[#1B0C07] text-[#E3845A] border border-[#3D180C] font-mono">
+              <span className="text-xs px-2.5 py-1 rounded-md bg-[#1B0C07] text-[#E3845A] border border-[#3D180C] font-mono font-bold">
                 {activeTab === 'inspect' && '🔍 OPTICAL INSPECTION CONSOLE'}
                 {activeTab === 'analytics' && '📊 REAL-TIME YIELD ANALYTICS'}
                 {activeTab === 'audit' && '📋 COMPLIANCE AUDIT TRAIL'}
               </span>
               {currentUser && (
-                <span className="text-xs text-[#D1B8AE] font-mono">
+                <span className="text-xs text-[#D1B8AE] font-mono hidden sm:inline">
                   Active Operator: <strong className="text-white">{currentUser.name || currentUser.email}</strong>
                 </span>
               )}
             </div>
 
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setCurrentView('landing')}
-                className="text-xs text-[#D1B8AE] hover:text-white px-3 py-1.5 rounded-lg bg-[#1B0C07] hover:bg-[#3D180C] border border-[#3D180C] font-mono transition-colors"
-              >
-                ← Back to Overview
-              </button>
+            <div className="flex items-center space-x-2 text-xs font-mono text-[#D1B8AE]">
+              <span>Engine: <strong className="text-emerald-400">Gemini 3.8 Flash</strong></span>
+              <span>•</span>
+              <span>DB: <strong className="text-[#E3845A]">Supabase</strong></span>
             </div>
           </div>
 
@@ -187,17 +184,17 @@ export default function App() {
       />
 
       {/* Global Footer */}
-      <footer className="border-t border-[#3D180C] bg-[#0d0503] py-6 text-xs text-[#D1B8AE]/70 mt-auto">
+      <footer className="border-t border-[#3D180C] bg-[#0d0503] py-5 text-xs text-[#D1B8AE]/70 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2 font-mono">
             <span className="w-2 h-2 rounded-full bg-[#E3845A]"></span>
             <span className="text-[#FAF9F6] font-bold">NEXCAN AI</span>
-            <span>— Autonomous Computer Vision &amp; Visual Quality Inspection</span>
+            <span>— Autonomous Computer Vision Quality Inspection</span>
           </div>
-          <div className="flex items-center space-x-4 font-mono text-[11px]">
+          <div className="flex items-center space-x-3 font-mono text-[11px]">
             <span>Team Nexus Four</span>
             <span>•</span>
-            <span>Aditya • Vivek • Abhay • Rhugved</span>
+            <span>Local Host: <code className="text-[#E3845A]">localhost:5173</code></span>
             <span>•</span>
             <a
               href="https://github.com/AGIQdev-Aditya/NexcanAI"
@@ -205,7 +202,7 @@ export default function App() {
               rel="noreferrer"
               className="text-[#E3845A] hover:underline"
             >
-              GitHub Repo
+              GitHub
             </a>
           </div>
         </div>
