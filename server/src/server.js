@@ -44,16 +44,16 @@ app.use(
   })
 );
 
-// API Routes
-app.use('/api', healthRoute);
-app.use('/api/auth', authRoute);
-app.use('/api/inspect', inspectRoute);
-app.use('/api/audit', auditRoute);
-app.use('/api/analytics', analyticsRoute);
+// API Routes (mounted with /api and root alias for flexible serverless dispatch)
+app.use(['/api', '/'], healthRoute);
+app.use(['/api/auth', '/auth'], authRoute);
+app.use(['/api/inspect', '/inspect'], inspectRoute);
+app.use(['/api/audit', '/audit'], auditRoute);
+app.use(['/api/analytics', '/analytics'], analyticsRoute);
 
-// Fallback all non-API GET requests to index.html (SPA routing)
+// Fallback all non-API GET requests to index.html (SPA routing for standalone/Docker)
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) return next();
+  if (req.path.startsWith('/api') || process.env.VERCEL) return next();
   res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
@@ -61,11 +61,13 @@ app.get('*', (req, res, next) => {
 app.use(errorHandler);
 
 const PORT = env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Nexcan AI Server running on http://localhost:${PORT}`);
-  console.log(`📡 Gemini Vision Model: ${env.GEMINI_MODEL}`);
-  console.log(`🗄️  Supabase URL: ${env.SUPABASE_URL ? env.SUPABASE_URL : 'Running in fallback memory mode'}`);
-  console.log(`📁 Serving client bundle from: ${clientDistPath}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Nexcan AI Server running on http://localhost:${PORT}`);
+    console.log(`📡 Gemini Vision Model: ${env.GEMINI_MODEL}`);
+    console.log(`🗄️  Supabase URL: ${env.SUPABASE_URL ? env.SUPABASE_URL : 'Running in fallback memory mode'}`);
+    console.log(`📁 Serving client bundle from: ${clientDistPath}`);
+  });
+}
 
 export default app;

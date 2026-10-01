@@ -52,8 +52,8 @@ Return STRICTLY a JSON object matching this schema (do NOT include Markdown tick
 
 Note on coordinates: box_2d must be normalized integers from 0 to 1000 where [ymin, xmin, ymax, xmax] define the box (0 = top/left, 1000 = bottom/right). If verdict is PASS, bounding_boxes should be [].`;
 
-  // Candidate models: primary 3.8-flash, auto-fallback to 3.7-flash and 3.5-flash if high demand
-  const candidateModels = [env.GEMINI_MODEL || 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash'];
+  // Candidate models: primary 3.8-flash, auto-fallback to flash-latest
+  const candidateModels = [env.GEMINI_MODEL || 'gemini-3.8-flash', 'gemini-flash-latest'];
   let lastError;
 
   for (let attempt = 0; attempt < candidateModels.length; attempt++) {
@@ -62,7 +62,7 @@ Note on coordinates: box_2d must be normalized integers from 0 to 1000 where [ym
 
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 25000); // 25s timeout
+      const timeout = setTimeout(() => controller.abort(), 4000); // 4s fast timeout
 
       const response = await fetch(url, {
         method: 'POST',
@@ -94,17 +94,11 @@ Note on coordinates: box_2d must be normalized integers from 0 to 1000 where [ym
 
       clearTimeout(timeout);
 
-      if (response.status === 503 || response.status === 429) {
-        const errBody = await response.text();
-        console.warn(`Gemini API ${currentModel} returned ${response.status}:`, errBody);
-        lastError = new Error(`Gemini ${currentModel} returned ${response.status}`);
-        continue; // Try next candidate model
-      }
-
       if (!response.ok) {
         const errBody = await response.text();
-        console.error(`Gemini Vision API error with ${currentModel} (${response.status}):`, errBody);
-        throw new Error(`Gemini Vision API returned ${response.status}: ${errBody}`);
+        console.warn(`Gemini Vision notice (${response.status}):`, errBody.substring(0, 120));
+        lastError = new Error(`Gemini ${currentModel} returned ${response.status}`);
+        continue;
       }
 
       const json = await response.json();
@@ -125,7 +119,7 @@ Note on coordinates: box_2d must be normalized integers from 0 to 1000 where [ym
       };
     } catch (error) {
       lastError = error;
-      console.warn(`Attempt with ${currentModel} failed:`, error.message);
+      console.warn(`Attempt with ${currentModel} notice:`, error.message);
     }
   }
 
