@@ -1,11 +1,14 @@
 # Dependencies
 node_modules/
 */node_modules/
+package-lock.json.bak
 
-# Environment variables & secrets
+# Environment variables & secrets (CRITICAL: Never commit secrets!)
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+*.env
+*.env.local
 server/.env
 client/.env
 
@@ -27,3 +30,8 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

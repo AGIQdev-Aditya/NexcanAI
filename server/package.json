@@ -1,0 +1,32 @@
+{
+  "name": "naxcan-server",
+  "version": "1.0.0",
+  "description": "Naxcan AI - Backend API with Google Gemini Vision & Supabase PostgreSQL",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "build": "echo 'Backend ready'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
+  },
+  "keywords": [
+    "express",
+    "gemini-vision",
+    "computer-vision",
+    "supabase",
+    "defect-inspection"
+  ],
+  "author": "Team Nexus Four",
+  "license": "MIT"
+}
