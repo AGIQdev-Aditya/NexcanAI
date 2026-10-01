@@ -52,15 +52,17 @@ Return STRICTLY a JSON object matching this schema (do NOT include Markdown tick
 
 Note on coordinates: box_2d must be normalized integers from 0 to 1000 where [ymin, xmin, ymax, xmax] define the box (0 = top/left, 1000 = bottom/right). If verdict is PASS, bounding_boxes should be [].`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${env.GEMINI_MODEL}:generateContent`;
-
-  const MAX_RETRIES = 3;
+  // Candidate models: primary 3.8-flash, auto-fallback to 3.7-flash and 3.5-flash if high demand
+  const candidateModels = [env.GEMINI_MODEL || 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash'];
   let lastError;
 
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+  for (let attempt = 0; attempt < candidateModels.length; attempt++) {
+    const currentModel = candidateModels[attempt];
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent`;
+
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+      const timeout = setTimeout(() => controller.abort(), 25000); // 25s timeout
 
       const response = await fetch(url, {
         method: 'POST',
@@ -94,26 +96,21 @@ Note on coordinates: box_2d must be normalized integers from 0 to 1000 where [ym
 
       if (response.status === 503 || response.status === 429) {
         const errBody = await response.text();
-        console.warn(`Gemini API ${response.status} (attempt ${attempt}/${MAX_RETRIES}):`, errBody);
-        lastError = new Error(`Gemini API returned ${response.status}`);
-        if (attempt < MAX_RETRIES) {
-          const delay = Math.pow(2, attempt) * 500; // 1s, 2s backoff
-          await new Promise(r => setTimeout(r, delay));
-          continue;
-        }
-        throw lastError;
+        console.warn(`Gemini API ${currentModel} returned ${response.status}:`, errBody);
+        lastError = new Error(`Gemini ${currentModel} returned ${response.status}`);
+        continue; // Try next candidate model
       }
 
       if (!response.ok) {
         const errBody = await response.text();
-        console.error(`Gemini Vision API error (${response.status}):`, errBody);
+        console.error(`Gemini Vision API error with ${currentModel} (${response.status}):`, errBody);
         throw new Error(`Gemini Vision API returned ${response.status}: ${errBody}`);
       }
 
       const json = await response.json();
       const candidate = json.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!candidate) {
-        throw new Error('Gemini Vision did not return candidate text content');
+        throw new Error(`Gemini Vision ${currentModel} did not return candidate text content`);
       }
 
       // Clean any markdown formatting if present
@@ -123,22 +120,14 @@ Note on coordinates: box_2d must be normalized integers from 0 to 1000 where [ym
       return {
         success: true,
         data: parsed,
+        model: currentModel,
         raw: json,
       };
     } catch (error) {
       lastError = error;
-      if (error.name === 'AbortError') {
-        console.warn(`Gemini API timeout (attempt ${attempt}/${MAX_RETRIES})`);
-        if (attempt < MAX_RETRIES) {
-          await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
-          continue;
-        }
-      }
-      if (attempt >= MAX_RETRIES) {
-        console.error('Vision analysis error after retries:', error.message);
-        throw error;
-      }
+      console.warn(`Attempt with ${currentModel} failed:`, error.message);
     }
   }
+
   throw lastError;
 }

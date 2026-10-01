@@ -9,8 +9,8 @@ import IsoCertificateModal from './components/IsoCertificateModal.jsx';
 import { getHealthStatus } from './services/api.js';
 
 export default function App() {
-  // Default directly to the core working application as requested
-  const [currentView, setCurrentView] = useState('app'); // 'app' | 'landing'
+  // Starts on the Overview landing page as requested
+  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'app'
   const [activeTab, setActiveTab] = useState('inspect'); // 'inspect' | 'analytics' | 'audit'
   const [systemStatus, setSystemStatus] = useState({ online: false, gemini: false, supabase: false });
   const [currentResult, setCurrentResult] = useState(null);
@@ -53,7 +53,7 @@ export default function App() {
     setActiveTab('inspect');
   };
 
-  // 1-Click Demo Login for quick testing
+  // 1-Click Demo Login for Hackathon Judges
   const handleQuickDemo = async () => {
     try {
       const res = await fetch('/api/auth/demo', {
@@ -73,9 +73,9 @@ export default function App() {
       console.warn('Demo login note:', err.message);
       const fallbackUser = {
         id: 'demo-lead-judge',
-        email: 'judge.lead@hackathon.ai',
-        name: 'Lead QA Judge',
-        role: 'Chief Quality Auditor',
+        email: 'aditya.sharma@nexcan.ai',
+        full_name: 'Aditya Sharma',
+        role: 'Lead QA Engineer & Plant Lead',
       };
       localStorage.setItem('nexcan_user', JSON.stringify(fallbackUser));
       setCurrentUser(fallbackUser);
@@ -113,7 +113,7 @@ export default function App() {
         onQuickDemo={handleQuickDemo}
       />
 
-      {/* Primary View Routing */}
+      {/* Primary View Routing: Overview (Landing) vs App Console */}
       {currentView === 'landing' ? (
         <Hero
           onLaunchApp={() => {
@@ -124,7 +124,7 @@ export default function App() {
           onQuickDemo={handleQuickDemo}
         />
       ) : (
-        <main className="flex-1 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 w-full">
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full animate-fade-in">
           {/* Subheader breadcrumbs inside app view */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-[#3D180C]">
             <div className="flex items-center space-x-3">
@@ -140,10 +140,10 @@ export default function App() {
               )}
             </div>
 
-            <div className="flex items-center space-x-2 text-xs font-mono text-[#D1B8AE]">
-              <span>Engine: <strong className="text-emerald-400">Gemini 3.8 Flash</strong></span>
+            <div className="flex items-center space-x-3 text-xs font-mono text-[#D1B8AE]">
+              <span>Vision: <strong className="text-emerald-400">Gemini 3.8 Flash</strong></span>
               <span>•</span>
-              <span>DB: <strong className="text-[#E3845A]">Supabase</strong></span>
+              <span>Cloud: <strong className="text-[#E3845A]">Supabase</strong></span>
             </div>
           </div>
 
@@ -152,7 +152,6 @@ export default function App() {
               currentUser={currentUser}
               onInspectionComplete={handleInspectionComplete}
               onOpenCertModal={() => setIsCertModalOpen(true)}
-              initialResult={currentResult}
             />
           )}
 
@@ -169,7 +168,7 @@ export default function App() {
         </main>
       )}
 
-      {/* Login / Auth Modal */}
+      {/* Login / Register Modal */}
       {isLoginModalOpen && (
         <LoginPage
           onLoginSuccess={handleLoginSuccess}
@@ -195,15 +194,13 @@ export default function App() {
           <div className="flex items-center space-x-3 font-mono text-[11px]">
             <span>Team Nexus Four</span>
             <span>•</span>
-            <span>Local Host: <code className="text-[#E3845A]">localhost:5173</code></span>
-            <span>•</span>
             <a
               href="https://github.com/AGIQdev-Aditya/NexcanAI"
               target="_blank"
               rel="noreferrer"
               className="text-[#E3845A] hover:underline"
             >
-              GitHub
+              GitHub Repository
             </a>
           </div>
         </div>

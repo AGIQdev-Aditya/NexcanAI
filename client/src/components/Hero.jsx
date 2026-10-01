@@ -15,7 +15,8 @@ import {
   Maximize2,
   Activity,
   Check,
-  FileCheck
+  FileCheck,
+  User
 } from 'lucide-react';
 import { initAll } from '../utils/scrollAnimations.js';
 
@@ -74,10 +75,10 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
           </p>
 
           {/* Action CTAs */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
             <button
               onClick={onLaunchApp}
-              className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 text-[#FFFFFF] font-bold text-xs tracking-wider uppercase shadow-xl shadow-[#E3845A]/25 flex items-center space-x-2 transition-all cursor-pointer hover:scale-[1.02]"
+              className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 text-[#FFFFFF] font-bold text-xs tracking-wider uppercase shadow-xl shadow-[#E3845A]/25 flex items-center space-x-2 transition-all cursor-pointer hover:scale-[1.02]"
             >
               <Zap className="w-4 h-4 text-white" />
               <span>Launch Live Inspector</span>
@@ -86,10 +87,18 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
 
             <button
               onClick={() => onQuickDemo ? onQuickDemo('lead') : (onOpenLogin && onOpenLogin())}
-              className="px-6 py-3.5 rounded-xl bg-[#1B0C07] hover:bg-[#2A130B] border border-[#E3845A]/40 text-[#E3845A] font-mono text-xs font-semibold shadow-lg transition-all cursor-pointer flex items-center space-x-2"
+              className="px-5 py-3.5 rounded-xl bg-[#1B0C07] hover:bg-[#2A130B] border border-[#E3845A]/40 text-[#E3845A] font-mono text-xs font-semibold shadow-lg transition-all cursor-pointer flex items-center space-x-2"
             >
               <Sparkles className="w-4 h-4 text-[#E3845A] animate-pulse" />
               <span>1-Click Judge Access</span>
+            </button>
+
+            <button
+              onClick={() => onOpenLogin && onOpenLogin()}
+              className="px-5 py-3.5 rounded-xl bg-[#120704] hover:bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 text-[#FAF9F6] font-mono text-xs font-medium transition-all cursor-pointer flex items-center space-x-2"
+            >
+              <User className="w-3.5 h-3.5 text-[#E3845A]" />
+              <span>Sign In / Create Account</span>
             </button>
           </div>
 
@@ -709,10 +718,10 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
               Test verified benchmark components, upload production photos, or snap your optical camera live.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
               <button
                 onClick={onLaunchApp}
-                className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider shadow-xl shadow-[#E3845A]/30 flex items-center space-x-2 transition-all hover:scale-[1.02] cursor-pointer"
+                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider shadow-xl shadow-[#E3845A]/30 flex items-center space-x-2 transition-all hover:scale-[1.02] cursor-pointer"
               >
                 <Zap className="w-4 h-4 text-white" />
                 <span>Launch Live Inspection Console</span>
@@ -720,10 +729,18 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
 
               <button
                 onClick={() => onQuickDemo ? onQuickDemo('lead') : (onOpenLogin && onOpenLogin())}
-                className="px-6 py-3.5 rounded-xl bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] text-[#E3845A] font-mono text-xs font-semibold transition-all flex items-center space-x-2 cursor-pointer"
+                className="px-5 py-3.5 rounded-xl bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] text-[#E3845A] font-mono text-xs font-semibold transition-all flex items-center space-x-2 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-[#E3845A] animate-pulse" />
                 <span>1-Click Judge Access</span>
+              </button>
+
+              <button
+                onClick={() => onOpenLogin && onOpenLogin()}
+                className="px-5 py-3.5 rounded-xl bg-[#1B0C07] hover:bg-[#2A130B] border border-[#3D180C] hover:border-[#E3845A]/40 text-[#FAF9F6] font-mono text-xs font-medium transition-all flex items-center space-x-2 cursor-pointer"
+              >
+                <User className="w-3.5 h-3.5 text-[#E3845A]" />
+                <span>Sign In / Create Account</span>
               </button>
             </div>
           </div>
