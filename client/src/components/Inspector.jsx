@@ -5,7 +5,7 @@ import DiagnosticResult from './DiagnosticResult.jsx';
 import { SAMPLE_PRESETS } from '../data/sampleInspections.js';
 import { inspectImage } from '../services/api.js';
 
-export default function Inspector({ onInspectionComplete, onOpenCertModal }) {
+export default function Inspector({ onInspectionComplete, onOpenCertModal, currentUser }) {
   const [selectedImage, setSelectedImage] = useState(SAMPLE_PRESETS[0].svgData);
   const [componentHint, setComponentHint] = useState(SAMPLE_PRESETS[0].hint);
   const [category, setCategory] = useState(SAMPLE_PRESETS[0].category);
@@ -102,6 +102,8 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal }) {
         imageBase64: selectedImage,
         componentHint: componentHint,
         category: category,
+        userEmail: currentUser?.email || 'operator@nexcan.ai',
+        userId: currentUser?.id || 'operator-default',
       });
 
       if (response?.data) {

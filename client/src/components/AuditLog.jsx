@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Database, Filter, RefreshCw, CheckCircle2, AlertTriangle, XOctagon, Search } from 'lucide-react';
 import { getAuditLogs } from '../services/api.js';
 
-export default function AuditLog({ onSelectInspection }) {
+export default function AuditLog({ onSelectInspection, currentUser }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterVerdict, setFilterVerdict] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [onlyMyLogs, setOnlyMyLogs] = useState(false);
 
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const res = await getAuditLogs({ verdict: filterVerdict || undefined });
+      const res = await getAuditLogs({
+        verdict: filterVerdict || undefined,
+        userEmail: onlyMyLogs && currentUser?.email ? currentUser.email : undefined,
+      });
       if (res?.data) {
         setLogs(res.data);
       }
@@ -24,7 +28,7 @@ export default function AuditLog({ onSelectInspection }) {
 
   useEffect(() => {
     fetchLogs();
-  }, [filterVerdict]);
+  }, [filterVerdict, onlyMyLogs]);
 
   const filteredLogs = logs.filter((log) => {
     const q = searchQuery.toLowerCase();
@@ -68,23 +72,36 @@ export default function AuditLog({ onSelectInspection }) {
     <div className="space-y-6">
       
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-slate-900/80 border border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-lg">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-emerald-400 mb-1">
+          <div className="flex items-center space-x-2 text-xs font-mono text-[#E3845A] mb-1">
             <Database className="w-4 h-4" />
             <span>SUPABASE CLOUD POSTGRESQL AUDIT REPOSITORY</span>
           </div>
           <h2 className="text-xl font-bold text-white">Optical Inspection Audit Trail</h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#D1B8AE]">
             Immutable inspection log certified to ISO-9001:2015 Clause 8.5.1 requirements.
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
+          {currentUser && (
+            <button
+              onClick={() => setOnlyMyLogs(!onlyMyLogs)}
+              className={`px-3 py-2 rounded-xl text-xs font-mono font-medium transition-colors border ${
+                onlyMyLogs
+                  ? 'bg-[#E3845A] text-white border-[#E3845A]'
+                  : 'bg-[#120704] text-[#D1B8AE] border-[#3D180C] hover:border-[#E3845A]/50'
+              }`}
+            >
+              {onlyMyLogs ? `👤 My Records (${currentUser.email})` : '👤 Filter My Records'}
+            </button>
+          )}
+
           <button
             onClick={fetchLogs}
             disabled={loading}
-            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-[#120704] hover:bg-[#3D180C] text-[#D1B8AE] hover:text-white border border-[#3D180C] text-xs font-medium transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Sync DB</span>
@@ -96,22 +113,22 @@ export default function AuditLog({ onSelectInspection }) {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-[#D1B8AE] absolute left-3 top-2.5" />
           <input
             type="text"
             placeholder="Search component, batch, defect..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+            className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#1B0C07] border border-[#3D180C] text-xs text-white placeholder-[#D1B8AE]/50 focus:outline-none focus:border-[#E3845A] font-mono"
           />
         </div>
 
         {/* Verdict Filters */}
-        <div className="flex items-center space-x-1 self-start sm:self-auto bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+        <div className="flex items-center space-x-1 self-start sm:self-auto bg-[#1B0C07] p-1 rounded-xl border border-[#3D180C] text-xs">
           <button
             onClick={() => setFilterVerdict('')}
             className={`px-3 py-1 rounded-lg font-medium transition-all ${
-              filterVerdict === '' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200'
+              filterVerdict === '' ? 'bg-[#3D180C] text-white' : 'text-[#D1B8AE] hover:text-white'
             }`}
           >
             All
@@ -119,7 +136,7 @@ export default function AuditLog({ onSelectInspection }) {
           <button
             onClick={() => setFilterVerdict('PASS')}
             className={`px-3 py-1 rounded-lg font-medium transition-all ${
-              filterVerdict === 'PASS' ? 'bg-emerald-600/30 text-emerald-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              filterVerdict === 'PASS' ? 'bg-emerald-600/30 text-emerald-400 font-bold' : 'text-[#D1B8AE] hover:text-white'
             }`}
           >
             Pass
@@ -127,7 +144,7 @@ export default function AuditLog({ onSelectInspection }) {
           <button
             onClick={() => setFilterVerdict('REWORK')}
             className={`px-3 py-1 rounded-lg font-medium transition-all ${
-              filterVerdict === 'REWORK' ? 'bg-amber-600/30 text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              filterVerdict === 'REWORK' ? 'bg-[#E3845A]/30 text-[#E3845A] font-bold' : 'text-[#D1B8AE] hover:text-white'
             }`}
           >
             Rework
@@ -135,7 +152,7 @@ export default function AuditLog({ onSelectInspection }) {
           <button
             onClick={() => setFilterVerdict('SCRAP')}
             className={`px-3 py-1 rounded-lg font-medium transition-all ${
-              filterVerdict === 'SCRAP' ? 'bg-red-600/30 text-red-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              filterVerdict === 'SCRAP' ? 'bg-red-600/30 text-red-400 font-bold' : 'text-[#D1B8AE] hover:text-white'
             }`}
           >
             Scrap
@@ -144,43 +161,43 @@ export default function AuditLog({ onSelectInspection }) {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-xl">
+      <div className="rounded-2xl border border-[#3D180C] bg-[#1B0C07] overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-mono">
+            <thead className="bg-[#120704] border-b border-[#3D180C] text-[#D1B8AE] font-mono">
               <tr>
                 <th className="py-3 px-4">TIMESTAMP</th>
                 <th className="py-3 px-4">BATCH ID</th>
                 <th className="py-3 px-4">COMPONENT</th>
-                <th className="py-3 px-4">CATEGORY</th>
+                <th className="py-3 px-4">OPERATOR</th>
                 <th className="py-3 px-4">VERDICT</th>
                 <th className="py-3 px-4">DEFECT TYPE</th>
                 <th className="py-3 px-4">CONFIDENCE</th>
                 <th className="py-3 px-4 text-right">ACTION</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-slate-300">
+            <tbody className="divide-y divide-[#3D180C]/60 text-slate-300">
               {filteredLogs.length > 0 ? (
                 filteredLogs.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="py-3 px-4 font-mono text-[11px] text-slate-400">
+                  <tr key={item.id} className="hover:bg-[#2A130B]/40 transition-colors">
+                    <td className="py-3 px-4 font-mono text-[11px] text-[#D1B8AE]/80">
                       {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </td>
-                    <td className="py-3 px-4 font-mono text-emerald-400 font-medium">
+                    <td className="py-3 px-4 font-mono text-[#E3845A] font-medium">
                       {item.batch_id}
                     </td>
                     <td className="py-3 px-4 font-semibold text-white">
                       {item.component_name}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-slate-300">
-                        {item.category}
+                      <span className="px-2 py-0.5 rounded bg-[#120704] text-[10px] font-mono text-[#D1B8AE] border border-[#3D180C]">
+                        {item.user_email || item.inspector_id || 'System'}
                       </span>
                     </td>
                     <td className="py-3 px-4">
                       {getVerdictBadge(item.verdict)}
                     </td>
-                    <td className="py-3 px-4 text-slate-300 font-mono text-[11px]">
+                    <td className="py-3 px-4 text-[#D1B8AE] font-mono text-[11px]">
                       {item.defect_type}
                     </td>
                     <td className="py-3 px-4 font-mono font-bold text-white">
@@ -189,7 +206,7 @@ export default function AuditLog({ onSelectInspection }) {
                     <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => onSelectInspection && onSelectInspection(item)}
-                        className="px-2.5 py-1 rounded bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 text-[11px] font-mono transition-colors cursor-pointer"
+                        className="px-2.5 py-1 rounded bg-[#3D180C] hover:bg-[#E3845A] hover:text-white text-[#FAF9F6] text-[11px] font-mono transition-colors cursor-pointer"
                       >
                         Inspect
                       </button>
@@ -198,7 +215,7 @@ export default function AuditLog({ onSelectInspection }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="py-10 text-center text-slate-500 font-mono">
+                  <td colSpan="8" className="py-10 text-center text-[#D1B8AE]/60 font-mono">
                     No inspection logs matching filter.
                   </td>
                 </tr>
