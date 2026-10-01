@@ -1,9 +1,11 @@
 # 🔬 Nexcan AI — Autonomous Industrial Computer Vision & Visual Quality Inspection Platform
 
-[![Hackathon Track](https://img.shields.io/badge/Hackathon-Computer%20Vision%20%26%20Visual%20Intelligence-blue.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
-[![Backend](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express%20%7C%20Gemini%203.8%20Flash%20Vision-emerald.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
-[![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL%20(Cloud)-blueviolet.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
-[![Security](https://img.shields.io/badge/Security-Zero--Leak%20Environment-success.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%7C%20Vite%20%7C%20TailwindCSS-06B6D4.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![Backend](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express%20ESM-339933.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![Vision AI](https://img.shields.io/badge/Vision%20AI-Google%20Gemini%203.8%20Flash%20Multimodal-4285F4.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL%20%26%20Storage-3ECF8E.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![Deployment](https://img.shields.io/badge/Deploy-Vercel%20%2B%20Render-000000.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![License](https://img.shields.io/badge/License-MIT-amber.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
 
 ---
 
@@ -12,22 +14,81 @@
 - **Aditya Sharma** ([@AGIQdev-Aditya](https://github.com/AGIQdev-Aditya)) — Team Lead & Backend/Vision Architect
 - **Vivek Gajdhane** ([@vivekgajdhane](https://github.com/vivekgajdhane)) — Frontend & UI/UX Engineer
 - **Abhay Singh** ([@abhaysingh1230](https://github.com/abhaysingh1230)) — Cloud & API Integration
-- **Rhugved** ([@rhugved2307](https://github.com/rhugved2307)) — AI Quality & Computer Vision
+- **Rhugved Kulkarni** ([@rhugved2307](https://github.com/rhugved2307)) — AI Quality & Computer Vision
 
 ---
 
 ## 🎯 Problem Statement
-Manufacturing plants, electronics assembly lines, and infrastructure managers rely heavily on manual human visual inspection of parts and surfaces. Human inspectors suffer from rapid cognitive fatigue (accuracy drops 40% after 20 minutes), resulting in missed microscopic defects, **$50B+ in annual scrap/recalls**, and fatal structural failures.
+
+Manufacturing plants, electronics assembly lines (SMT/PCB), and aerospace/defense contractors face critical bottlenecks in manual visual inspection:
+- **Rapid Cognitive Fatigue**: Inspector accuracy drops over 40% after just 20 minutes of continuous inspection.
+- **Microscopic Defect Escapes**: Micro-cracks, cold solder joints, lifted pins, and seal leaks are difficult for the naked eye to detect consistently.
+- **Massive Financial Losses**: Over **$50B+ in annual global scrap, warranty recalls, and production line halts**.
+- **Audit Non-Compliance**: Lack of automated, tamper-evident digital records compliant with ISO-9001 and IPC-A-610 standards.
 
 ---
 
 ## 💡 The Solution: Nexcan AI
-**Nexcan AI** is an autonomous industrial visual intelligence platform powered by **Google Gemini 3.8 Flash Multimodal Vision** and **Supabase Cloud PostgreSQL**.
 
-1. **Multimodal Defect Inspection**: Instant visual scanning of PCB circuit boards, metal welds, structural components, and packaging via image upload or live camera feeds.
-2. **Defect Localization & Severity Analysis**: Identifies micro-anomalies, generates normalized bounding box coordinates (`[ymin, xmin, ymax, xmax]`), and assigns risk verdicts (`PASS`, `REWORK`, `SCRAP`).
-3. **Automated Root-Cause Remediation**: Generates instant corrective rework action plans and engineering root causes.
-4. **ISO-9001 Compliance Audit Trail**: Every inspection is logged in Supabase Cloud with high-resolution metadata and downloadable compliance audit certificates.
+**Nexcan AI** is a full-stack, autonomous industrial computer vision platform that replaces subjective visual checks with sub-millimeter visual intelligence powered by **Google Gemini 3.8 Flash Multimodal Vision** and **Supabase Cloud PostgreSQL**.
+
+```
+[ High-Res Camera / Upload ] 
+            │
+            ▼
+[ Vite + React UI Console ] ──► [ Express Backend API ]
+            │                               │
+            ▼                               ▼
+[ HTML5 Bounding Box Canvas ]     [ Gemini 3.8 Flash Vision ]
+            ▲                               │
+            │                               ▼
+[ ISO-9001 Audit Certificate ] ◄── [ Supabase PostgreSQL & CDN ]
+```
+
+---
+
+## ✨ Core Web App & Platform Capabilities
+
+### 1. 🔍 Autonomous Optical Inspection Console
+- **Dual Input Modes**: Supports high-resolution drag-and-drop image uploads and **real-time live camera feeds** directly through the browser.
+- **Factory-Floor Presets**: Preloaded sample test images across PCB electronics, CNC machined metal, aerospace composites, and sterile medical packaging.
+- **Flexible Component Classification**: Select component categories (PCB, Metal, Aerospace, Packaging, General) and tune confidence thresholds in real time.
+
+### 2. 🎯 Precision Defect Localization & Interactive Canvas
+- **Normalized Bounding Box Projection**: Renders exact defect bounding boxes (`[ymin, xmin, ymax, xmax]`) dynamically scaled onto an HTML5 canvas.
+- **Interactive Inspection Overlays**: Hover over detected anomalies to view real-time confidence scores, defect classifications, and dimensional estimates.
+- **Tri-State Quality Verdicts**:
+  - `PASS` (Green) — Component satisfies all structural and cosmetic tolerances.
+  - `REWORK` (Amber) — Non-critical defect that can be remedied via secondary machining or touch-up.
+  - `SCRAP` (Red) — Critical structural breach; immediate isolation required.
+
+### 3. 🛠️ Root-Cause Engineering & Remediation Plans
+- Instant technical diagnosis of the manufacturing failure mechanism (e.g., reflow thermal profile overshoot, CNC endmill tool wear).
+- Actionable engineering corrective instructions dispatched to operators in real time.
+
+### 4. 📜 ISO-9001:2015 & IPC-A-610 Compliance Certification
+- Dynamic generation of **Digital Quality Assurance Certificates**.
+- Includes unique Batch ID, inspection timestamp, operator attribution, defect diagnostics, and an official ISO compliance stamp.
+- One-click printable and exportable format for line audits and regulatory reviews.
+
+### 5. 📊 Real-Time Yield & Financial Savings Analytics
+- Live dashboard displaying:
+  - **Overall Yield Rate (%)** vs **Defect Rate (%)**
+  - **Pass / Rework / Scrap Distribution**
+  - **Estimated Financial Savings ($USD)** calculated from early-stage defect interception.
+  - **Pareto Defect Breakdown** categorizing recurring anomalies across production batches.
+
+### 6. 📋 Operator Audit Trail & Session History
+- Cloud-backed searchable audit log of all inspection records.
+- Filter by verdict (`PASS`, `REWORK`, `SCRAP`), component category, or operator.
+- Click any past inspection to reload it directly into the inspection console with full bounding boxes and diagnostic metrics.
+
+### 7. ⚡ 1-Click Judge & Operator Demo Authentication
+- Built-in **1-Click Demo Login** tailored for hackathon evaluators and line managers (`Lead QA Engineer` or `Line Operator`).
+- Full Supabase Auth support (Email/Password registration and login) with persistent session tokens.
+
+### 8. 🛡️ Zero-Downtime Fallback Architecture
+- Nexcan AI includes an intelligent **in-memory mock fallback engine**. If Gemini or Supabase API keys are not supplied, the app gracefully operates using simulated industrial datasets so that all features, charts, and canvases can be evaluated immediately without friction.
 
 ---
 
@@ -35,32 +96,127 @@ Manufacturing plants, electronics assembly lines, and infrastructure managers re
 
 ```
 NexcanAI/
-├── server/                     # Backend API (Node.js + Express + Gemini + Supabase)
+├── client/                         # Modern React Frontend (Vite + Tailwind CSS)
+│   ├── public/                     # Static media & assets
 │   ├── src/
-│   │   ├── config/             # Environment, Gemini & Supabase clients
-│   │   ├── controllers/        # Business logic (inspect, audit, analytics)
-│   │   ├── routes/             # REST endpoints (/api/inspect, /api/audit, /api/health)
-│   │   ├── services/           # Gemini Vision Service & Supabase DB Service
-│   │   ├── middleware/         # Error handling & Multer upload support
-│   │   └── server.js           # Express app bootstrap
-│   ├── package.json
-│   └── .env.example
+│   │   ├── components/             # Reusable UI components
+│   │   │   ├── AnalyticsDashboard.jsx  # Yield metrics & savings charts
+│   │   │   ├── AuditLog.jsx            # Filterable historical inspection logs
+│   │   │   ├── DefectCanvas.jsx        # HTML5 canvas bounding box overlay
+│   │   │   ├── DiagnosticResult.jsx    # Defect verdict & remediation card
+│   │   │   ├── Hero.jsx                # Cinematic landing page & 3D twin theater
+│   │   │   ├── Inspector.jsx           # Main optical inspection workbench
+│   │   │   ├── IsoCertificateModal.jsx # ISO-9001 compliance certificate generator
+│   │   │   ├── LoginPage.jsx           # Supabase & 1-Click Demo authentication
+│   │   │   └── Navbar.jsx              # Status indicators & view switcher
+│   │   ├── data/                   # Default inspection presets & samples
+│   │   ├── services/               # Frontend API client (api.js)
+│   │   ├── App.jsx                 # Main application state & routing controller
+│   │   ├── index.css               # Obsidian/Terracotta industrial styling
+│   │   └── main.jsx                # React DOM entry point
+│   ├── .env.example                # Client environment template
+│   ├── index.html                  # HTML5 application shell
+│   ├── package.json                # Client dependencies & scripts
+│   ├── tailwind.config.js          # Tailwind CSS theme configuration
+│   └── vite.config.js              # Vite server & API proxy config
 │
-├── supabase/                   # Supabase PostgreSQL Database
-│   └── schema.sql              # Table definitions, indexes & RLS policies
+├── server/                         # Backend API (Node.js + Express ESM)
+│   ├── src/
+│   │   ├── config/                 # Env configuration & Supabase client
+│   │   ├── controllers/            # Inspection, auth, audit, analytics handlers
+│   │   ├── middleware/             # Error handling & Multer upload processing
+│   │   ├── routes/                 # REST endpoints (/inspect, /audit, /auth, etc.)
+│   │   ├── services/
+│   │   │   ├── databaseService.js  # Supabase PostgreSQL & in-memory cache
+│   │   │   └── visionService.js    # Google Gemini 3.8 Flash Vision API engine
+│   │   └── server.js               # Express application entry point
+│   ├── .env.example                # Server environment template
+│   └── package.json                # Backend dependencies & scripts
 │
-├── package.json                # Server startup scripts
-├── .gitignore                  # Security-first ignore rules (protects all secrets)
-└── README.md                   # Full documentation & API guide
+├── supabase/                       # Cloud Database Definitions
+│   └── schema.sql                  # PostgreSQL table definitions, indexes & RLS
+│
+├── templates/                      # Standalone templates
+│   └── LoginPage.jsx               # Drop-in login template
+│
+├── render.yaml                     # Render backend deployment manifest
+├── vercel.json                     # Vercel frontend deployment manifest
+├── package.json                    # Root orchestration scripts
+├── .gitignore                      # Security-hardened gitignore
+└── README.md                       # Comprehensive platform documentation
 ```
 
 ---
 
-## 📡 REST API Reference for Frontend (Vivek)
+## 🚀 Quick Start Guide
 
-The backend runs at `http://localhost:5000` (or the deployed backend URL).
+### Prerequisites
+- **Node.js**: v18.0.0 or higher (`node -v`)
+- **npm**: v9.0.0 or higher (`npm -v`)
+- **Git**: Installed and configured
 
-### 1. Health & Status
+### 1. Clone the Repository
+```bash
+git clone https://github.com/AGIQdev-Aditya/NexcanAI.git
+cd NexcanAI
+```
+
+### 2. Install All Dependencies (Single Command)
+Run the root setup command to install dependencies across root, server, and client:
+```bash
+npm run install:all
+```
+
+### 3. Configure Environment Variables (Optional)
+Copy the example environment files:
+```bash
+# In the root directory:
+cp server/.env.example server/.env
+cp client/.env.example client/.env
+```
+*(On Windows PowerShell, use `Copy-Item server/.env.example server/.env` and `Copy-Item client/.env.example client/.env`)*
+
+> **Note**: Nexcan AI runs seamlessly **even without API keys** thanks to its built-in fallback engine. When ready for live vision and cloud persistence, fill in your keys in `server/.env`.
+
+### 4. Start the Application
+Start both the backend server and frontend development server concurrently:
+```bash
+npm run dev
+```
+
+- **Frontend Web App**: [http://localhost:5173](http://localhost:5173)
+- **Backend API Server**: [http://localhost:5000](http://localhost:5000)
+
+---
+
+## ⚙️ Environment Variables Reference
+
+### Backend (`server/.env`)
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `PORT` | No | `5000` | Port for Express API server |
+| `NODE_ENV` | No | `development` | Node environment |
+| `GEMINI_API_KEY` | Optional* | `""` | Google Gemini API key for multimodal vision |
+| `GEMINI_MODEL` | No | `gemini-flash-latest` | Gemini model variant |
+| `SUPABASE_URL` | Optional* | `""` | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Optional* | `""` | Supabase service role key (backend operations) |
+| `SUPABASE_ANON_KEY` | Optional* | `""` | Supabase anonymous public key |
+| `CORS_ORIGIN` | No | `http://localhost:5173` | Allowed CORS origin |
+
+*\*If omitted, the server operates in safe fallback mode using in-memory demo data.*
+
+### Frontend (`client/.env`)
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `VITE_API_URL` | No | `http://localhost:5000` | Target URL for backend API (automatically proxied in local dev) |
+
+---
+
+## 📡 REST API Reference
+
+The backend exposes a REST API at `http://localhost:5000/api`.
+
+### 1. System Health
 ```http
 GET /api/health
 ```
@@ -78,94 +234,18 @@ GET /api/health
 
 ---
 
-### 2. Operator Authentication & 1-Click Demo Login
-A complete drop-in React login component is available in `templates/LoginPage.jsx`.
-
-#### A. 1-Click Hackathon Demo Login (For Judges)
-```http
-POST /api/auth/demo
-Content-Type: application/json
-
-{ "role": "lead" } // or "operator"
-```
-**Response:**
-```json
-{
-  "success": true,
-  "token": "demo-token-demo-aditya-lead-...",
-  "user": {
-    "id": "demo-aditya-lead",
-    "email": "aditya.sharma@nexcan.ai",
-    "full_name": "Aditya Sharma",
-    "role": "Lead QA Engineer & Plant Lead",
-    "station": "Station #4 (High-Speed SMT Line)"
-  }
-}
-```
-
-#### B. Standard Sign In (Supabase Auth)
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "operator@nexcan.ai",
-  "password": "Password123!"
-}
-```
-
-#### C. Register Inspector
-```http
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "email": "operator@nexcan.ai",
-  "password": "Password123!",
-  "full_name": "Aditya Sharma",
-  "role": "Lead QA Inspector"
-}
-```
-
-#### D. Google Sign-In Profile Sync
-```http
-POST /api/auth/google
-Content-Type: application/json
-
-{
-  "email": "judge@gmail.com",
-  "full_name": "Hackathon Judge",
-  "google_id": "123456"
-}
-```
-
----
-
-### 3. Autonomous Defect Inspection
+### 2. Autonomous Defect Inspection
 ```http
 POST /api/inspect
 ```
+Supports both **`multipart/form-data`** (file upload) and **`application/json`** (Base64).
 
-Supports **BOTH** formats:
-- **Option A (File Upload)**: `multipart/form-data` with field `image`
-- **Option B (Base64 JSON)**: `application/json` with `{ "imageBase64": "...", "componentHint": "PCB" }`
+**Parameters:**
+- `image`: Image file (in FormData) OR `imageBase64`: Base64 string (in JSON)
+- `componentHint`: Label hint (e.g., `"SMD Controller Board"`)
+- `category`: `"PCB"` | `"Metal"` | `"Aerospace"` | `"Packaging"` | `"General"`
 
-**Example Request (Axios / Fetch):**
-```javascript
-// Example using FormData (File Upload)
-const formData = new FormData();
-formData.append('image', file); // from <input type="file">
-formData.append('componentHint', 'SMD Controller Board');
-formData.append('category', 'PCB');
-
-const res = await fetch('http://localhost:5000/api/inspect', {
-  method: 'POST',
-  body: formData,
-});
-const data = await res.json();
-```
-
-**Example Response:**
+**Response:**
 ```json
 {
   "success": true,
@@ -195,23 +275,27 @@ const data = await res.json();
 }
 ```
 
-> **Note on `bounding_boxes`**: `box_2d` is normalized from `0` to `1000` (`[ymin, xmin, ymax, xmax]`). To draw on a `<canvas>` of width `W` and height `H`:
-> - `x = (xmin / 1000) * W`
-> - `y = (ymin / 1000) * H`
-> - `width = ((xmax - xmin) / 1000) * W`
-> - `height = ((ymax - ymin) / 1000) * H`
+> **Bounding Box Coordinate System**: `box_2d` values are normalized integers from `0` to `1000` in the format `[ymin, xmin, ymax, xmax]`. The frontend canvas calculates exact pixel placements using `(ymin / 1000) * height`, `(xmin / 1000) * width`, etc.
 
 ---
 
-### 4. Historical Audit Trail
+### 3. Authentication & Operator Sessions
+- `POST /api/auth/demo` — Instant 1-click evaluation login (`{ "role": "lead" }` or `{ "role": "operator" }`).
+- `POST /api/auth/login` — Standard Supabase operator authentication.
+- `POST /api/auth/register` — Register a new QA inspector account.
+- `POST /api/auth/google` — Sync Google OAuth profile.
+
+---
+
+### 4. Audit Trail & Inspection History
 ```http
-GET /api/audit?verdict=SCRAP&limit=20
+GET /api/audit?verdict=SCRAP&category=PCB&limit=20
 ```
-Fetches historical inspection records directly from Supabase PostgreSQL.
+Returns chronological historical inspection records with full diagnostic results and bounding boxes.
 
 ---
 
-### 5. Yield & Production Analytics
+### 5. Production Yield Analytics
 ```http
 GET /api/analytics
 ```
@@ -229,7 +313,7 @@ GET /api/analytics
     "cost_saved_usd": 2250,
     "defect_breakdown": {
       "Solder Bridge on QFP-48": 2,
-      "Surface Burr": 1
+      "Edge Micro-Burr": 1
     }
   }
 }
@@ -237,13 +321,30 @@ GET /api/analytics
 
 ---
 
-## 🚀 Quick Start for the Team
+## 🚢 Cloud Deployment
 
-```bash
-git clone https://github.com/AGIQdev-Aditya/NexcanAI.git
-cd NexcanAI
-cd server && npm install
-npm run dev
-```
+### Frontend (Vercel)
+The project includes a ready-to-use [`vercel.json`](./vercel.json):
+1. Connect your repository to Vercel.
+2. Root Directory: `./` (or `client`).
+3. Set environment variable `VITE_API_URL` to your production backend URL.
 
-Server starts on `http://localhost:5000` with hot-reloading.
+### Backend (Render)
+The repository includes a ready-to-use [`render.yaml`](./render.yaml):
+1. Connect your repository to Render as a Web Service.
+2. Build Command: `npm --prefix server install`
+3. Start Command: `npm --prefix server start`
+4. Configure your `GEMINI_API_KEY`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY`.
+
+### Database Setup (Supabase)
+1. Create a new project on [Supabase](https://supabase.com).
+2. Go to the SQL Editor and execute [`supabase/schema.sql`](./supabase/schema.sql).
+3. Create a public storage bucket named `inspection-images` if image upload persistence is desired.
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+Built with precision by **Team Nexus Four** for industrial quality assurance.
