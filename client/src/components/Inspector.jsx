@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Camera, Sparkles, AlertCircle, RefreshCw, CheckCircle, ArrowRight } from 'lucide-react';
+import { Upload, Camera, Sparkles, AlertCircle, RefreshCw, CheckCircle, ArrowRight, Layers, Cpu, ShieldCheck } from 'lucide-react';
 import DefectCanvas from './DefectCanvas.jsx';
 import DiagnosticResult from './DiagnosticResult.jsx';
 import { SAMPLE_PRESETS } from '../data/sampleInspections.js';
@@ -102,8 +102,8 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
         imageBase64: selectedImage,
         componentHint: componentHint,
         category: category,
-        userEmail: currentUser?.email || 'operator@nexcan.ai',
-        userId: currentUser?.id || 'operator-default',
+        userEmail: currentUser?.email || 'lead.inspector@nexcan.ai',
+        userId: currentUser?.id || 'lead-inspector',
       });
 
       if (response?.data) {
@@ -124,42 +124,49 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
     <div className="space-y-6">
       
       {/* Test Presets Selector */}
-      <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
+      <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#3D180C] gap-2">
           <div>
-            <h3 className="text-xs font-bold font-mono tracking-wider text-emerald-400 uppercase">
-              1-CLICK INDUSTRIAL BENCHMARK PRESETS
+            <h3 className="text-xs font-bold font-mono tracking-wider text-[#E3845A] uppercase flex items-center space-x-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>1-CLICK INDUSTRIAL BENCHMARK PRESETS</span>
             </h3>
-            <p className="text-[11px] text-slate-400">
-              Select verified test components to evaluate autonomous defect recognition.
+            <p className="text-[11px] text-[#D1B8AE] mt-0.5">
+              Select verified test components to evaluate autonomous defect recognition across high-throughput assemblies.
             </p>
           </div>
-          <div className="text-[10px] font-mono text-slate-500">
-            Powered by Gemini 3.8 Flash Vision
+          <div className="text-[10px] font-mono text-[#D1B8AE]/70 bg-[#120704] px-2.5 py-1 rounded-lg border border-[#3D180C]">
+            Model: Gemini 3.8 Flash Vision
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
           {SAMPLE_PRESETS.map((preset) => {
             const isSelected = componentHint === preset.hint;
             return (
               <button
                 key={preset.id}
                 onClick={() => handleSelectPreset(preset)}
-                className={`text-left p-3 rounded-xl border transition-all cursor-pointer ${
+                className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
                   isSelected
-                    ? 'border-emerald-500 bg-emerald-950/20 shadow-lg shadow-emerald-950/40'
-                    : 'border-slate-800 bg-slate-950/60 hover:border-slate-700 hover:bg-slate-900'
+                    ? 'border-[#E3845A] bg-[#2A130B] shadow-lg shadow-[#E3845A]/15 ring-1 ring-[#E3845A]/50'
+                    : 'border-[#3D180C] bg-[#120704] hover:border-[#E3845A]/40 hover:bg-[#1B0C07]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${preset.badgeColor}`}>
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                    preset.expectedVerdict === 'PASS' 
+                      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                      : preset.expectedVerdict === 'REWORK'
+                      ? 'bg-[#E3845A]/20 text-[#E3845A] border-[#E3845A]/40'
+                      : 'bg-red-500/15 text-red-400 border-red-500/30'
+                  }`}>
                     {preset.expectedVerdict}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono">{preset.category}</span>
+                  <span className="text-[10px] text-[#D1B8AE]/70 font-mono">{preset.category}</span>
                 </div>
-                <div className="text-xs font-bold text-white truncate">{preset.title}</div>
-                <div className="text-[10px] text-slate-400 line-clamp-2 mt-0.5">{preset.description}</div>
+                <div className="text-xs font-bold text-[#FFFFFF] truncate">{preset.title}</div>
+                <div className="text-[10px] text-[#D1B8AE] line-clamp-2 mt-0.5">{preset.description}</div>
               </button>
             );
           })}
@@ -172,22 +179,22 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
         {/* Left: Image Feed & Controls (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+          <div className="rounded-2xl border border-[#3D180C] bg-[#1B0C07] p-4 shadow-xl">
             
             {/* Action Bar */}
             <div className="flex items-center justify-between mb-3 text-xs">
-              <div className="font-mono text-slate-300 font-semibold flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>OPTICAL FEED SURFACE</span>
+              <div className="font-mono text-[#D1B8AE] font-semibold flex items-center space-x-2">
+                <span className="w-2 h-2 rounded-full bg-[#E3845A] animate-pulse"></span>
+                <span className="text-[#FFFFFF]">OPTICAL FEED SURFACE</span>
               </div>
 
               <div className="flex items-center space-x-2">
                 {/* Upload Button */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] hover:border-[#E3845A]/40 text-[#D1B8AE] hover:text-[#FFFFFF] text-xs font-mono transition-colors cursor-pointer"
                 >
-                  <Upload className="w-3.5 h-3.5" />
+                  <Upload className="w-3.5 h-3.5 text-[#E3845A]" />
                   <span>Upload Image</span>
                 </button>
                 <input
@@ -202,7 +209,7 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                 {isWebcamActive ? (
                   <button
                     onClick={captureWebcamSnapshot}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/30"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#E3845A] to-[#A74A21] text-[#FFFFFF] text-xs font-bold shadow-md shadow-[#E3845A]/30 cursor-pointer"
                   >
                     <Camera className="w-3.5 h-3.5" />
                     <span>Snap Feed</span>
@@ -210,9 +217,9 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                 ) : (
                   <button
                     onClick={startWebcam}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition-colors"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] hover:border-[#E3845A]/40 text-[#D1B8AE] hover:text-[#FFFFFF] text-xs font-mono transition-colors cursor-pointer"
                   >
-                    <Camera className="w-3.5 h-3.5" />
+                    <Camera className="w-3.5 h-3.5 text-[#E3845A]" />
                     <span>Live Camera</span>
                   </button>
                 )}
@@ -221,9 +228,9 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
 
             {/* Webcam Live Stream View */}
             {isWebcamActive ? (
-              <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center border border-emerald-500/40">
+              <div className="relative rounded-xl overflow-hidden bg-[#120704] aspect-video flex items-center justify-center border border-[#E3845A]/50">
                 <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                <div className="absolute top-3 left-3 px-2 py-1 rounded bg-black/70 text-emerald-400 text-[10px] font-mono border border-emerald-500/30">
+                <div className="absolute top-3 left-3 px-2 py-1 rounded bg-[#120704]/90 text-[#E3845A] text-[10px] font-mono border border-[#E3845A]/30">
                   LIVE SENSOR FEED
                 </div>
               </div>
@@ -238,9 +245,9 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
             )}
 
             {/* Component Metadata Input & Inspect Trigger */}
-            <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center gap-3">
+            <div className="mt-4 pt-4 border-t border-[#3D180C] flex flex-col sm:flex-row items-center gap-3">
               <div className="flex-1 w-full">
-                <label className="text-[10px] font-mono text-slate-400 block mb-1">
+                <label className="text-[10px] font-mono text-[#D1B8AE] block mb-1">
                   COMPONENT DESCRIPTION / SPECIFICATION HINT
                 </label>
                 <input
@@ -248,23 +255,23 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                   value={componentHint}
                   onChange={(e) => setComponentHint(e.target.value)}
                   placeholder="e.g. Solder leads, Turbine blade, Hermetic seal"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#120704] border border-[#3D180C] text-xs text-[#FFFFFF] placeholder-[#D1B8AE]/40 focus:outline-none focus:border-[#E3845A] font-mono"
                 />
               </div>
 
               <button
                 onClick={handleRunInspection}
                 disabled={isScanning}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2 shrink-0 transition-all cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#E3845A]/30 flex items-center justify-center space-x-2 shrink-0 transition-all cursor-pointer hover:scale-[1.02]"
               >
                 {isScanning ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                    <RefreshCw className="w-4 h-4 animate-spin text-[#FFFFFF]" />
                     <span>Analyzing Anomaly...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-emerald-200" />
+                    <Sparkles className="w-4 h-4 text-[#FFFFFF]" />
                     <span>ANALYZE ANOMALIES</span>
                   </>
                 )}
@@ -273,7 +280,7 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
 
             {/* Error Message Alert */}
             {errorMsg && (
-              <div className="mt-3 p-3 rounded-xl bg-red-950/30 border border-red-800/50 flex items-center space-x-2 text-xs text-red-300">
+              <div className="mt-3 p-3 rounded-xl bg-red-950/40 border border-red-800/60 flex items-center space-x-2 text-xs text-red-300">
                 <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
                 <span>{errorMsg}</span>
               </div>
@@ -291,16 +298,16 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
               onOpenCertModal={onOpenCertModal}
             />
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-8 text-center flex flex-col items-center justify-center min-h-[420px]">
-              <div className="w-12 h-12 rounded-2xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-center mb-3 text-slate-400">
-                <Sparkles className="w-6 h-6 text-emerald-400 animate-pulse" />
+            <div className="rounded-2xl border border-dashed border-[#3D180C] bg-[#1B0C07] p-8 text-center flex flex-col items-center justify-center min-h-[440px] shadow-xl">
+              <div className="w-14 h-14 rounded-2xl bg-[#120704] border border-[#3D180C] flex items-center justify-center mb-4 text-[#E3845A]">
+                <Sparkles className="w-7 h-7 text-[#E3845A] animate-pulse" />
               </div>
-              <h4 className="text-sm font-bold text-slate-200">Awaiting Optical Inspection</h4>
-              <p className="text-xs text-slate-400 mt-1 max-w-xs">
-                Select a preset or upload a component feed, then click <strong className="text-emerald-400">Analyze Anomalies</strong>.
+              <h4 className="text-base font-bold text-[#FFFFFF]">Awaiting Optical Inspection</h4>
+              <p className="text-xs text-[#D1B8AE] mt-2 max-w-xs leading-relaxed">
+                Select a benchmark preset or upload your production image, then click <strong className="text-[#E3845A]">Analyze Anomalies</strong> to evaluate defects with Gemini 3.8.
               </p>
-              <div className="mt-5 text-[11px] font-mono text-slate-500 border border-slate-800 bg-slate-950 px-3 py-1.5 rounded-lg">
-                READY: ISO-9001 / IPC-A-610 AUDITOR
+              <div className="mt-6 text-[11px] font-mono text-[#D1B8AE] border border-[#3D180C] bg-[#120704] px-4 py-2 rounded-xl">
+                STANDARDS: ISO-9001 / IPC-A-610 CLASS 3
               </div>
             </div>
           )}

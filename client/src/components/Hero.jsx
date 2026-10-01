@@ -18,46 +18,77 @@ import {
   XCircle,
   Database,
   Cpu,
-  Award
+  Award,
+  Scan,
+  Compass,
+  Activity,
+  Sliders,
+  ChevronDown
 } from 'lucide-react';
 
 export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
-  const containerRef = useRef(null);
+  const scrollTrackRef = useRef(null);
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isAutoPlay, setIsAutoPlay] = useState(false); // Default to scroll scrubbing
   const [isMuted, setIsMuted] = useState(true);
-  const [scrollMode, setScrollMode] = useState(false); // Toggle between Auto-play & Scroll-scrubbing
 
-  // Scroll-driven video playback scrubbing (Apple-style)
+  // High-performance scroll-driven video scrubbing (Apple-style)
   useEffect(() => {
-    if (!scrollMode) return;
+    if (isAutoPlay) return;
+
+    let ticking = false;
 
     const handleScroll = () => {
-      const container = containerRef.current;
-      const video = videoRef.current;
-      if (!container || !video || isNaN(video.duration)) return;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const track = scrollTrackRef.current;
+          const video = videoRef.current;
+          if (!track || !video || isNaN(video.duration)) {
+            ticking = false;
+            return;
+          }
 
-      const rect = container.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const totalScrollable = rect.height + windowHeight;
-      const currentScroll = windowHeight - rect.top;
-      const progress = Math.min(Math.max(currentScroll / totalScrollable, 0), 1);
+          const rect = track.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          const totalDistance = rect.height - windowHeight;
 
-      video.currentTime = progress * video.duration;
+          if (totalDistance <= 0) {
+            ticking = false;
+            return;
+          }
+
+          // Progress from 0.0 when top hits top of viewport, to 1.0 when bottom hits bottom of viewport
+          const scrolled = -rect.top;
+          const progress = Math.min(Math.max(scrolled / totalDistance, 0), 1);
+
+          setScrollProgress(progress);
+
+          // Update video frame smoothly (scrub video with -g 1 intra-frames)
+          if (!isNaN(video.duration) && video.duration > 0) {
+            video.currentTime = progress * video.duration;
+          }
+
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrollMode]);
+    handleScroll(); // initialize on mount
 
-  const togglePlay = () => {
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isAutoPlay]);
+
+  const toggleAutoPlay = () => {
     if (!videoRef.current) return;
-    if (isPlaying) {
+    if (isAutoPlay) {
       videoRef.current.pause();
-      setIsPlaying(false);
+      setIsAutoPlay(false);
     } else {
       videoRef.current.play();
-      setIsPlaying(true);
+      setIsAutoPlay(true);
     }
   };
 
@@ -67,47 +98,45 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
     setIsMuted(!isMuted);
   };
 
-  const handleFullscreen = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.requestFullscreen) {
-      videoRef.current.requestFullscreen();
-    }
-  };
-
   return (
-    <div ref={containerRef} className="relative overflow-hidden pt-10 pb-16 border-b border-[#3D180C]/80 radar-grid bg-[#120704]">
-      {/* Soft diffused light leak backdrop */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[550px] diffused-light-leak pointer-events-none" />
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-[#E3845A]/12 blur-[140px] pointer-events-none rounded-full" />
+    <div className="bg-[#120704] text-[#FAF9F6] selection:bg-[#E3845A] selection:text-[#120704]">
+      
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 1: HERO OVERVIEW & INTRO
+          ───────────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden pt-12 pb-16 border-b border-[#3D180C] bg-[#120704] radar-grid">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[550px] diffused-light-leak pointer-events-none" />
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-[#E3845A]/12 blur-[140px] pointer-events-none rounded-full" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Top Header Text */}
-        <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#E3845A]/10 border border-[#E3845A]/30 text-[#E3845A] text-xs font-mono mb-5 backdrop-blur-md shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E3845A] animate-pulse"></span>
-            <span className="tracking-wide">NEXT-GEN COMPUTER VISION &amp; VISUAL INTELLIGENCE</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          
+          {/* Track Tag Badge */}
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#1B0C07] border border-[#E3845A]/40 text-[#E3845A] text-xs font-mono mb-6 backdrop-blur-md shadow-lg shadow-[#E3845A]/10">
+            <span className="w-2 h-2 rounded-full bg-[#E3845A] animate-pulse"></span>
+            <span className="tracking-wider uppercase font-semibold">Track: Computer Vision &amp; Visual Intelligence</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-[#FFFFFF] tracking-tight leading-tight">
+          {/* Main Title */}
+          <h1 className="text-4xl sm:text-6xl font-extrabold text-[#FFFFFF] tracking-tight leading-[1.15] max-w-4xl mx-auto">
             Autonomous Quality Assurance &amp;{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFFFFF] via-[#E3845A] to-[#A74A21]">
               Defect Intelligence
             </span>
           </h1>
 
-          <p className="mt-4 text-sm sm:text-base text-[#D1B8AE] max-w-2xl mx-auto leading-relaxed">
+          {/* Subtitle */}
+          <p className="mt-5 text-sm sm:text-lg text-[#D1B8AE] max-w-2xl mx-auto leading-relaxed">
             Eliminate human visual fatigue on manufacturing lines. Instant sub-millimeter flaw localization, automated root-cause disposition (
-            <code className="text-[#34D399] font-semibold bg-[#34D399]/10 px-1 py-0.5 rounded border border-[#34D399]/20">PASS</code> /{' '}
-            <code className="text-[#E3845A] font-semibold bg-[#E3845A]/10 px-1 py-0.5 rounded border border-[#E3845A]/20">REWORK</code> /{' '}
-            <code className="text-[#F43F5E] font-semibold bg-[#F43F5E]/10 px-1 py-0.5 rounded border border-[#F43F5E]/20">SCRAP</code>), and verified ISO-9001 compliance audit trails.
+            <code className="text-[#34D399] font-bold bg-[#34D399]/15 px-1.5 py-0.5 rounded border border-[#34D399]/30">PASS</code> /{' '}
+            <code className="text-[#E3845A] font-bold bg-[#E3845A]/15 px-1.5 py-0.5 rounded border border-[#E3845A]/30">REWORK</code> /{' '}
+            <code className="text-[#F43F5E] font-bold bg-[#F43F5E]/15 px-1.5 py-0.5 rounded border border-[#F43F5E]/30">SCRAP</code>), and verified ISO-9001 compliance audit trails.
           </p>
 
-          {/* Primary Action Buttons */}
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3.5">
+          {/* Action CTAs */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={onLaunchApp}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:from-[#E3845A] hover:to-[#A74A21] text-white font-bold text-xs tracking-wider uppercase shadow-xl shadow-[#E3845A]/25 flex items-center space-x-2 transition-all cursor-pointer hover:scale-[1.02]"
+              className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 text-[#FFFFFF] font-bold text-xs tracking-wider uppercase shadow-xl shadow-[#E3845A]/25 flex items-center space-x-2 transition-all cursor-pointer hover:scale-[1.02]"
             >
               <Zap className="w-4 h-4 text-white" />
               <span>Launch Live Inspector</span>
@@ -116,283 +145,468 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
 
             <button
               onClick={() => onQuickDemo ? onQuickDemo('lead') : (onOpenLogin && onOpenLogin())}
-              className="px-5 py-3 rounded-xl bg-[#1B0C07] hover:bg-[#2A130B] border border-[#E3845A]/40 text-[#E3845A] font-mono text-xs font-semibold shadow-md transition-all cursor-pointer flex items-center space-x-2"
+              className="px-6 py-3.5 rounded-xl bg-[#1B0C07] hover:bg-[#2A130B] border border-[#E3845A]/40 text-[#E3845A] font-mono text-xs font-semibold shadow-lg transition-all cursor-pointer flex items-center space-x-2"
             >
-              <Sparkles className="w-3.5 h-3.5 animate-pulse text-[#E3845A]" />
+              <Sparkles className="w-4 h-4 animate-pulse text-[#E3845A]" />
               <span>1-Click Judge Access</span>
             </button>
           </div>
 
-          {/* Quick Metrics Bar with warm espresso & obsidian surfaces */}
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3.5 max-w-3xl mx-auto">
-            <div className="p-3 rounded-xl bg-[#1B0C07]/90 border border-[#3D180C] flex items-center space-x-3 backdrop-blur-sm shadow-md hover:border-[#E3845A]/40 transition-colors">
-              <Zap className="w-5 h-5 text-[#E3845A] shrink-0" />
-              <div className="text-left">
-                <div className="text-xs font-bold text-white font-mono">&lt; 500ms</div>
-                <div className="text-[10px] text-[#D1B8AE]/80">Inference Latency</div>
+          {/* Metrics Bar */}
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3.5 max-w-4xl mx-auto">
+            <div className="p-4 rounded-2xl bg-[#1B0C07] border border-[#3D180C] text-left hover:border-[#E3845A]/40 transition-colors shadow-lg">
+              <div className="flex items-center space-x-2 text-[#E3845A] mb-1">
+                <Zap className="w-4 h-4" />
+                <span className="text-[11px] font-mono font-bold uppercase">Latency</span>
               </div>
+              <div className="text-xl font-extrabold text-[#FFFFFF] font-mono">&lt; 500ms</div>
+              <div className="text-[11px] text-[#D1B8AE]/80 mt-0.5">Real-time edge cycle</div>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#1B0C07]/90 border border-[#3D180C] flex items-center space-x-3 backdrop-blur-sm shadow-md hover:border-[#E3845A]/40 transition-colors">
-              <ShieldCheck className="w-5 h-5 text-[#34D399] shrink-0" />
-              <div className="text-left">
-                <div className="text-xs font-bold text-white font-mono">99.4%</div>
-                <div className="text-[10px] text-[#D1B8AE]/80">Accuracy F1</div>
+            <div className="p-4 rounded-2xl bg-[#1B0C07] border border-[#3D180C] text-left hover:border-[#E3845A]/40 transition-colors shadow-lg">
+              <div className="flex items-center space-x-2 text-[#34D399] mb-1">
+                <ShieldCheck className="w-4 h-4" />
+                <span className="text-[11px] font-mono font-bold uppercase">Accuracy</span>
               </div>
+              <div className="text-xl font-extrabold text-[#FFFFFF] font-mono">99.4% F1</div>
+              <div className="text-[11px] text-[#D1B8AE]/80 mt-0.5">Defect precision</div>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#1B0C07]/90 border border-[#3D180C] flex items-center space-x-3 backdrop-blur-sm shadow-md hover:border-[#E3845A]/40 transition-colors">
-              <Layers className="w-5 h-5 text-[#E3845A] shrink-0" />
-              <div className="text-left">
-                <div className="text-xs font-bold text-white font-mono">0.05 mm</div>
-                <div className="text-[10px] text-[#D1B8AE]/80">Tolerance Precision</div>
+            <div className="p-4 rounded-2xl bg-[#1B0C07] border border-[#3D180C] text-left hover:border-[#E3845A]/40 transition-colors shadow-lg">
+              <div className="flex items-center space-x-2 text-[#E3845A] mb-1">
+                <Layers className="w-4 h-4" />
+                <span className="text-[11px] font-mono font-bold uppercase">Precision</span>
               </div>
+              <div className="text-xl font-extrabold text-[#FFFFFF] font-mono">0.05 mm</div>
+              <div className="text-[11px] text-[#D1B8AE]/80 mt-0.5">Sub-millimeter flaw limit</div>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#1B0C07]/90 border border-[#3D180C] flex items-center space-x-3 backdrop-blur-sm shadow-md hover:border-[#E3845A]/40 transition-colors">
-              <BarChart2 className="w-5 h-5 text-[#A74A21] shrink-0" />
-              <div className="text-left">
-                <div className="text-xs font-bold text-white font-mono">ISO-9001</div>
-                <div className="text-[10px] text-[#D1B8AE]/80">Audit Compliance</div>
+            <div className="p-4 rounded-2xl bg-[#1B0C07] border border-[#3D180C] text-left hover:border-[#E3845A]/40 transition-colors shadow-lg">
+              <div className="flex items-center space-x-2 text-[#A74A21] mb-1">
+                <Award className="w-4 h-4" />
+                <span className="text-[11px] font-mono font-bold uppercase">Standard</span>
               </div>
+              <div className="text-xl font-extrabold text-[#FFFFFF] font-mono">ISO-9001</div>
+              <div className="text-[11px] text-[#D1B8AE]/80 mt-0.5">Clause 8.5.1 certified</div>
             </div>
           </div>
-        </div>
 
-        {/* 3D Hardware Render Showcase Window with Moody Warm Glow */}
-        <div className="mt-12 max-w-4xl mx-auto">
-          <div className="relative p-[1.5px] rounded-2xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] shadow-2xl cinematic-glow">
+          {/* Interactive Scroll Prompt */}
+          <div className="mt-12 flex flex-col items-center justify-center space-y-2 text-[#D1B8AE]/70 animate-bounce">
+            <span className="text-xs font-mono tracking-widest uppercase">Scroll Down to Scrub 3D Optical Hardware</span>
+            <ChevronDown className="w-4 h-4 text-[#E3845A]" />
+          </div>
+
+        </div>
+      </section>
+
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 2: FULL-SPACE STICKY SCROLL VIDEO THEATER (APPLE-STYLE)
+          ───────────────────────────────────────────────────────────── */}
+      <section ref={scrollTrackRef} className="relative h-[320vh] bg-[#120704]">
+        
+        {/* Sticky Viewport Stage */}
+        <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden bg-[#120704] z-20">
+          
+          {/* Subtle Diffused Backing Glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(227,132,90,0.12)_0%,rgba(18,7,4,0.95)_70%)] pointer-events-none" />
+
+          {/* The Full-Space Video Element */}
+          <div className="relative w-full h-full max-w-[1920px] flex items-center justify-center">
             
-            <div className="rounded-[15px] bg-[#120704] overflow-hidden">
+            <video
+              ref={videoRef}
+              src="/videos/hero-render-scrub.mp4"
+              playsInline
+              muted={isMuted}
+              loop={isAutoPlay}
+              autoPlay={false}
+              className="w-full h-full object-cover sm:object-contain transition-opacity duration-300 pointer-events-none select-none"
+            />
+
+            {/* Edge Vignette & Ambient Darkness Overlays to blend flawlessly into #120704 */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#120704] via-transparent to-[#120704]/90" />
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#120704] via-transparent to-[#120704]" />
+
+            {/* Optical Alignment Crosshairs & Laser Overlay */}
+            <div className="absolute inset-8 pointer-events-none border border-[#E3845A]/15 rounded-3xl hidden md:block">
+              {/* Corner Reticles */}
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#E3845A]" />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#E3845A]" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[#E3845A]" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#E3845A]" />
+            </div>
+
+            {/* Dynamic Laser Scanline sweeping down based on scroll */}
+            <div
+              className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#E3845A] to-transparent shadow-[0_0_15px_#E3845A] pointer-events-none transition-all duration-75"
+              style={{ top: `${Math.min(Math.max(scrollProgress * 100, 10), 90)}%` }}
+            />
+
+            {/* TOP FLOATING HUD: Live Telemetry Bar */}
+            <div className="absolute top-6 left-6 right-6 flex items-center justify-between pointer-events-none z-30">
+              <div className="flex items-center space-x-3 bg-[#1B0C07]/90 border border-[#3D180C] px-3.5 py-1.5 rounded-xl backdrop-blur-md shadow-xl">
+                <span className="w-2 h-2 rounded-full bg-[#E3845A] animate-ping" />
+                <span className="font-mono text-xs text-[#FFFFFF] font-bold">NEXCAN 3D OPTICAL RIG</span>
+                <span className="text-[#3D180C]">|</span>
+                <span className="font-mono text-[11px] text-[#D1B8AE] hidden sm:inline">
+                  POS: X:{(120 + scrollProgress * 40).toFixed(1)}mm Y:{(60 + scrollProgress * 30).toFixed(1)}mm
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-2 bg-[#1B0C07]/90 border border-[#3D180C] px-3 py-1.5 rounded-xl backdrop-blur-md shadow-xl">
+                <Cpu className="w-3.5 h-3.5 text-[#E3845A]" />
+                <span className="font-mono text-xs text-[#FFFFFF]">GEMINI 3.8 REASONING</span>
+              </div>
+            </div>
+
+            {/* CENTER FLOATING NARRATIVE MILESTONE (Transitions with Scroll Progress) */}
+            <div className="absolute inset-x-4 sm:inset-x-auto sm:left-12 sm:max-w-md bottom-28 sm:bottom-24 pointer-events-auto z-30">
               
-              {/* Window Header Bar */}
-              <div className="px-4 py-2.5 bg-[#1B0C07] border-b border-[#3D180C] flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#F43F5E]/80"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#E3845A]/80"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#34D399]/80"></div>
-                  <span className="ml-2 font-mono text-[11px] text-[#FAF9F6] font-semibold tracking-wide flex items-center gap-1.5">
-                    <Terminal className="w-3.5 h-3.5 text-[#E3845A]" />
-                    NEXCAN-OPTIX // 3D HARDWARE OPTICAL STREAM
-                  </span>
+              {/* Milestone 1: 0% - 25% */}
+              {scrollProgress < 0.25 && (
+                <div className="p-6 rounded-2xl bg-[#1B0C07]/95 border border-[#3D180C] shadow-2xl backdrop-blur-xl animate-fade-in">
+                  <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
+                    <Scan className="w-4 h-4" />
+                    <span>01 / HIGH-RESOLUTION OPTICAL SCAN</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-[#FFFFFF]">Sub-Millimeter Surface Profiling</h3>
+                  <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
+                    Custom telecentric lenses illuminate micro-fractures, dimensional warpage, and solder voids with 0.05 mm precision.
+                  </p>
                 </div>
+              )}
 
-                <div className="flex items-center space-x-2">
-                  {/* Scroll vs Auto-play Mode Toggle */}
-                  <button
-                    onClick={() => {
-                      if (!scrollMode && videoRef.current) videoRef.current.pause();
-                      if (scrollMode && videoRef.current) videoRef.current.play();
-                      setScrollMode(!scrollMode);
-                    }}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-mono flex items-center space-x-1.5 transition-all ${
-                      scrollMode
-                        ? 'bg-[#E3845A] text-black font-bold shadow-md shadow-[#E3845A]/30'
-                        : 'bg-[#120704] text-[#D1B8AE] border border-[#3D180C] hover:border-[#E3845A]/50'
-                    }`}
-                  >
-                    <MousePointer className="w-3 h-3" />
-                    <span>{scrollMode ? 'Mode: Scroll-Scrub' : 'Mode: Auto-Play'}</span>
-                  </button>
+              {/* Milestone 2: 25% - 52% */}
+              {scrollProgress >= 0.25 && scrollProgress < 0.52 && (
+                <div className="p-6 rounded-2xl bg-[#1B0C07]/95 border border-[#3D180C] shadow-2xl backdrop-blur-xl animate-fade-in">
+                  <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
+                    <Cpu className="w-4 h-4" />
+                    <span>02 / MULTIMODAL VISION CORE</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-[#FFFFFF]">Gemini 3.8 Visual Intelligence</h3>
+                  <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
+                    Eliminates human inspector eye fatigue. Evaluates complex geometries, contextual defect severity, and IPC-A-610 criteria.
+                  </p>
+                </div>
+              )}
 
-                  {/* Video Controls */}
-                  <div className="flex items-center space-x-1 pl-2 border-l border-[#3D180C]">
-                    {!scrollMode && (
-                      <button
-                        onClick={togglePlay}
-                        title={isPlaying ? "Pause" : "Play"}
-                        className="p-1.5 rounded text-[#D1B8AE] hover:text-[#FFFFFF] hover:bg-[#3D180C] transition-colors"
-                      >
-                        {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                      </button>
-                    )}
+              {/* Milestone 3: 52% - 78% */}
+              {scrollProgress >= 0.52 && scrollProgress < 0.78 && (
+                <div className="p-6 rounded-2xl bg-[#1B0C07]/95 border border-[#3D180C] shadow-2xl backdrop-blur-xl animate-fade-in">
+                  <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
+                    <Zap className="w-4 h-4" />
+                    <span>03 / SUB-500MS DISPOSITION</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-[#FFFFFF]">Autonomous PASS / REWORK / SCRAP</h3>
+                  <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
+                    Instant factory routing decisions. Outputs explicit rework coordinates and instructions directly to technician workstations.
+                  </p>
+                </div>
+              )}
+
+              {/* Milestone 4: 78% - 100% */}
+              {scrollProgress >= 0.78 && (
+                <div className="p-6 rounded-2xl bg-[#1B0C07]/95 border border-[#E3845A]/40 shadow-2xl backdrop-blur-xl animate-fade-in">
+                  <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
+                    <Award className="w-4 h-4" />
+                    <span>04 / ISO-9001 COMPLIANCE</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-[#FFFFFF]">Supabase Audit &amp; Certificate</h3>
+                  <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
+                    Immutable PostgreSQL audit trail with operator attribution, downloadable compliance certificates, and real-time yield analytics.
+                  </p>
+                  <div className="mt-4 flex items-center space-x-2">
                     <button
-                      onClick={toggleMute}
-                      title={isMuted ? "Unmute" : "Mute"}
-                      className="p-1.5 rounded text-[#D1B8AE] hover:text-[#FFFFFF] hover:bg-[#3D180C] transition-colors"
+                      onClick={onLaunchApp}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#E3845A] to-[#A74A21] text-[#FFFFFF] font-bold text-xs uppercase shadow-md hover:brightness-110 transition-all flex items-center space-x-1.5"
                     >
-                      {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>Launch Console</span>
                     </button>
                     <button
-                      onClick={handleFullscreen}
-                      title="Fullscreen"
-                      className="p-1.5 rounded text-[#D1B8AE] hover:text-[#FFFFFF] hover:bg-[#3D180C] transition-colors"
+                      onClick={() => onQuickDemo ? onQuickDemo('lead') : (onOpenLogin && onOpenLogin())}
+                      className="px-3.5 py-2 rounded-xl bg-[#120704] border border-[#3D180C] text-[#E3845A] text-xs font-mono hover:bg-[#3D180C]/50 transition-colors"
                     >
-                      <Maximize2 className="w-3.5 h-3.5" />
+                      Judge Demo
                     </button>
                   </div>
                 </div>
-              </div>
-
-              {/* Video Player Display Area */}
-              <div className="relative aspect-video w-full bg-[#0a0402] flex items-center justify-center overflow-hidden group">
-                <video
-                  ref={videoRef}
-                  src="/videos/hero-render.mp4"
-                  autoPlay={!scrollMode}
-                  loop={!scrollMode}
-                  muted={isMuted}
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-
-                {/* Reticle / Optical HUD Crosshairs */}
-                <div className="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-[#E3845A]/80">
-                    <span className="px-2 py-0.5 rounded bg-[#120704]/80 backdrop-blur-sm border border-[#E3845A]/30">
-                      [+ OPTICAL SENSOR 01]
-                    </span>
-                    <span className="px-2 py-0.5 rounded bg-[#120704]/80 backdrop-blur-sm border border-[#E3845A]/30">
-                      RES: 1080P // 60 FPS
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-[10px] font-mono text-[#E3845A]/80">
-                    <span className="px-2 py-0.5 rounded bg-[#120704]/80 backdrop-blur-sm border border-[#E3845A]/30">
-                      AI MODEL: GEMINI 3.8 VISION
-                    </span>
-                    <span className="px-2 py-0.5 rounded bg-[#120704]/80 backdrop-blur-sm border border-[#E3845A]/30">
-                      {scrollMode ? 'SCRUB ACTIVE // SCROLL PAGE' : 'STATUS: SYNCHRONIZED'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Warm diffused cinematic vignette */}
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#120704]/90 via-transparent to-transparent"></div>
-              </div>
+              )}
 
             </div>
+
+            {/* BOTTOM HUD: Interactive Scrub Controls & Progress Track */}
+            <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-center justify-between gap-3 z-30 pointer-events-auto">
+              
+              {/* Playback Mode Switcher */}
+              <div className="flex items-center space-x-2 bg-[#1B0C07]/90 border border-[#3D180C] p-1.5 rounded-xl backdrop-blur-md">
+                <button
+                  onClick={toggleAutoPlay}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono flex items-center space-x-1.5 transition-all ${
+                    isAutoPlay
+                      ? 'bg-gradient-to-r from-[#E3845A] to-[#A74A21] text-[#FFFFFF] font-bold shadow-md'
+                      : 'text-[#D1B8AE] hover:text-[#FFFFFF]'
+                  }`}
+                >
+                  {isAutoPlay ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  <span>{isAutoPlay ? 'Auto-Playing' : 'Scroll Scrub Mode'}</span>
+                </button>
+
+                <button
+                  onClick={toggleMute}
+                  title="Toggle Audio"
+                  className="p-1.5 text-[#D1B8AE] hover:text-white rounded-lg hover:bg-[#3D180C]/50 transition-colors"
+                >
+                  {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+
+              {/* Real-time Scrubbing Meter */}
+              <div className="w-full sm:w-80 bg-[#1B0C07]/90 border border-[#3D180C] p-2.5 rounded-xl backdrop-blur-md flex items-center space-x-3">
+                <div className="text-[11px] font-mono text-[#D1B8AE] whitespace-nowrap">
+                  FRAME SCRUB: <strong className="text-[#FFFFFF]">{Math.round(scrollProgress * 100)}%</strong>
+                </div>
+                <div className="w-full bg-[#120704] h-2 rounded-full overflow-hidden border border-[#3D180C]">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#A74A21] via-[#E3845A] to-[#FFFFFF] transition-all duration-75 shadow-[0_0_10px_#E3845A]"
+                    style={{ width: `${scrollProgress * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Quick Launch CTA */}
+              <button
+                onClick={onLaunchApp}
+                className="hidden md:flex items-center space-x-2 px-4 py-2 rounded-xl bg-[#1B0C07]/90 hover:bg-[#2A130B] border border-[#E3845A]/40 text-[#E3845A] text-xs font-mono font-bold backdrop-blur-md shadow-lg transition-all"
+              >
+                <span>Launch App</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+            </div>
+
           </div>
+
         </div>
 
-        {/* SECTION 2: Problem vs Solution (Why Industrial QA Needs This) */}
-        <div className="mt-20 max-w-5xl mx-auto">
-          <div className="text-center mb-10">
-            <span className="text-xs font-mono text-[#E3845A] uppercase tracking-wider block mb-1">
-              THE INDUSTRIAL QA CRISIS
+      </section>
+
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 3: PROBLEM VS SOLUTION (THE INDUSTRIAL DISRUPTION)
+          ───────────────────────────────────────────────────────────── */}
+      <section className="py-24 border-b border-[#3D180C] bg-[#120704] relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-mono text-[#E3845A] tracking-wider uppercase bg-[#1B0C07] px-3 py-1 rounded-full border border-[#3D180C]">
+              Why Manual QA Fails High-Volume Assembly
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">
-              Why Manual Human Inspection Fails At Scale
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#FFFFFF] mt-4 tracking-tight">
+              Human Visual Exhaustion vs.{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFFFFF] via-[#E3845A] to-[#A74A21]">
+                Autonomous Nexcan AI
+              </span>
             </h2>
-            <p className="text-xs sm:text-sm text-[#D1B8AE] max-w-xl mx-auto mt-2">
-              Assembly line operators face severe sensory fatigue, leading to missed defects, recalls, and millions in scrap.
+            <p className="text-sm text-[#D1B8AE] mt-3">
+              Studies show manual visual inspectors miss 20% to 35% of sub-millimeter defects after just 20 minutes of continuous line scrutiny.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             
-            {/* The Old Way */}
-            <div className="p-6 rounded-2xl bg-[#1B0C07]/80 border border-red-950/40 relative overflow-hidden">
-              <div className="flex items-center space-x-2 text-red-400 font-mono text-xs font-bold mb-4">
-                <XCircle className="w-4 h-4 shrink-0 text-red-400" />
-                <span>TRADITIONAL HUMAN INSPECTION</span>
+            {/* Left: Traditional Inspection */}
+            <div className="p-8 rounded-2xl bg-[#1B0C07] border border-[#F43F5E]/30 relative overflow-hidden shadow-xl">
+              <div className="flex items-center space-x-3 pb-4 border-b border-[#3D180C]">
+                <div className="w-10 h-10 rounded-xl bg-[#F43F5E]/15 border border-[#F43F5E]/30 flex items-center justify-center text-[#F43F5E]">
+                  <XCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[#FFFFFF]">Manual Visual Inspection</h3>
+                  <p className="text-xs text-[#D1B8AE] font-mono">Traditional Human Eyeball Scrutiny</p>
+                </div>
               </div>
-              <ul className="space-y-3 text-xs text-[#D1B8AE]">
-                <li className="flex items-start space-x-2">
-                  <span className="text-red-400 font-bold">•</span>
-                  <span><strong>40% Accuracy Drop:</strong> Human cognitive fatigue sets in within 20 minutes of continuous scrutiny.</span>
+
+              <ul className="mt-6 space-y-4 text-xs text-[#D1B8AE]">
+                <li className="flex items-start space-x-3">
+                  <span className="text-[#F43F5E] font-bold text-sm">✕</span>
+                  <span><strong>Visual Fatigue Degradation:</strong> Error rates spike 300% after 20 minutes of repetitive microscope examination.</span>
                 </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-red-400 font-bold">•</span>
-                  <span><strong>$50B+ in Scrap &amp; Recalls:</strong> Micro-fractures and solder bridging escape downstream into customer hands.</span>
+                <li className="flex items-start space-x-3">
+                  <span className="text-[#F43F5E] font-bold text-sm">✕</span>
+                  <span><strong>Subjective Pass/Fail Bias:</strong> Operators disagree on borderline tolerances by up to 24%, causing inconsistent yield.</span>
                 </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-red-400 font-bold">•</span>
-                  <span><strong>Unrecorded Dispositions:</strong> Manual clipboard logs fail ISO-9001 Clause 8.5.1 regulatory traceability audits.</span>
+                <li className="flex items-start space-x-3">
+                  <span className="text-[#F43F5E] font-bold text-sm">✕</span>
+                  <span><strong>High Latency Bottleneck:</strong> 15 to 45 seconds per component slows conveyor throughput and spikes labor overhead.</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <span className="text-[#F43F5E] font-bold text-sm">✕</span>
+                  <span><strong>Zero Immutable Audit Trail:</strong> Paper logs or manual entry fail ISO-9001 Clause 8.5.1 strict traceability mandates.</span>
                 </li>
               </ul>
             </div>
 
-            {/* The Nexcan AI Way */}
-            <div className="p-6 rounded-2xl bg-[#1B0C07] border border-[#E3845A]/40 relative overflow-hidden shadow-lg shadow-[#E3845A]/5">
-              <div className="flex items-center space-x-2 text-[#34D399] font-mono text-xs font-bold mb-4">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-[#34D399]" />
-                <span>NEXCAN AI AUTONOMOUS CV</span>
+            {/* Right: Nexcan AI */}
+            <div className="p-8 rounded-2xl bg-[#1B0C07] border border-[#E3845A]/50 relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 px-3 py-1 rounded-bl-xl bg-gradient-to-r from-[#E3845A] to-[#A74A21] text-[#FFFFFF] text-[10px] font-mono font-bold uppercase tracking-wider">
+                Autonomous Standard
               </div>
-              <ul className="space-y-3 text-xs text-[#D1B8AE]">
-                <li className="flex items-start space-x-2">
-                  <span className="text-[#34D399] font-bold">✓</span>
-                  <span><strong>Sub-0.05 mm Precision:</strong> Zero fatigue 24/7 scanning powered by Google Gemini 3.8 Flash Multimodal Vision.</span>
+
+              <div className="flex items-center space-x-3 pb-4 border-b border-[#3D180C]">
+                <div className="w-10 h-10 rounded-xl bg-[#E3845A]/15 border border-[#E3845A]/40 flex items-center justify-center text-[#E3845A]">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[#FFFFFF]">Nexcan AI Vision Core</h3>
+                  <p className="text-xs text-[#E3845A] font-mono">Multimodal Autonomous Intelligence</p>
+                </div>
+              </div>
+
+              <ul className="mt-6 space-y-4 text-xs text-[#D1B8AE]">
+                <li className="flex items-start space-x-3">
+                  <span className="text-[#34D399] font-bold text-sm">✓</span>
+                  <span><strong>Zero Visual Fatigue:</strong> 24/7 continuous operation with steady 99.4% F1 precision across millions of frames.</span>
                 </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-[#34D399] font-bold">✓</span>
-                  <span><strong>Immediate Root-Cause Guidance:</strong> Line operators receive actionable rework steps (<code className="text-[#34D399]">PASS</code> / <code className="text-[#E3845A]">REWORK</code> / <code className="text-[#F43F5E]">SCRAP</code>) in 500ms.</span>
+                <li className="flex items-start space-x-3">
+                  <span className="text-[#34D399] font-bold text-sm">✓</span>
+                  <span><strong>Sub-Millimeter Geometry:</strong> Identifies micro-bridging, hairline fracture cracks down to 0.05 mm span.</span>
                 </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-[#34D399] font-bold">✓</span>
-                  <span><strong>Immutable Cloud Ledger:</strong> Every component photo &amp; bounding box is recorded in Supabase with verifiable ISO certificates.</span>
+                <li className="flex items-start space-x-3">
+                  <span className="text-[#34D399] font-bold text-sm">✓</span>
+                  <span><strong>Sub-500ms Edge Inference:</strong> Keeps continuous assembly line pacing with automated verdict routing.</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <span className="text-[#34D399] font-bold text-sm">✓</span>
+                  <span><strong>Supabase Cloud Audit Trail:</strong> Every batch logged with bounding box coordinates, operator ID, and printable ISO certs.</span>
                 </li>
               </ul>
             </div>
 
           </div>
-        </div>
 
-        {/* SECTION 3: 4-Stage Architectural Pipeline */}
-        <div className="mt-20 max-w-5xl mx-auto">
-          <div className="text-center mb-10">
-            <span className="text-xs font-mono text-[#E3845A] uppercase tracking-wider block mb-1">
-              SYSTEM ARCHITECTURE
+        </div>
+      </section>
+
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 4: END-TO-END VISION PIPELINE
+          ───────────────────────────────────────────────────────────── */}
+      <section className="py-20 border-b border-[#3D180C] bg-[#120704]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-mono text-[#E3845A] tracking-wider uppercase bg-[#1B0C07] px-3 py-1 rounded-full border border-[#3D180C]">
+              Architecture Blueprint
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">
-              End-to-End Visual Quality Pipeline
+            <h2 className="text-3xl font-extrabold text-[#FFFFFF] mt-3">
+              4-Stage Computer Vision Pipeline
             </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 transition-colors">
-              <div className="text-[#E3845A] font-mono text-xs font-bold mb-2">01 // INTAKE</div>
-              <h4 className="text-sm font-bold text-white mb-1">Optical Capture</h4>
-              <p className="text-xs text-[#D1B8AE] leading-relaxed">
-                Accepts multi-angle camera streams, live webcams, or high-res manufacturing uploads.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 transition-colors">
-              <div className="text-[#E3845A] font-mono text-xs font-bold mb-2">02 // INFERENCE</div>
-              <h4 className="text-sm font-bold text-white mb-1">Gemini 3.8 Vision</h4>
-              <p className="text-xs text-[#D1B8AE] leading-relaxed">
-                Zero-shot token multimodal analysis identifies micro-fractures, voids, and pitch bridges.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 transition-colors">
-              <div className="text-[#E3845A] font-mono text-xs font-bold mb-2">03 // LOCALIZATION</div>
-              <h4 className="text-sm font-bold text-white mb-1">Bounding Overlays</h4>
-              <p className="text-xs text-[#D1B8AE] leading-relaxed">
-                Dynamic normalized reticles pinpoint exact flaw coordinates and calculate tolerance deviation.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 transition-colors">
-              <div className="text-[#E3845A] font-mono text-xs font-bold mb-2">04 // AUDIT</div>
-              <h4 className="text-sm font-bold text-white mb-1">Supabase Ledger</h4>
-              <p className="text-xs text-[#D1B8AE] leading-relaxed">
-                Permanent PostgreSQL storage, CDN image retention, and 1-click printable ISO-9001 certificates.
-              </p>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Final CTA Banner */}
-        <div className="mt-20 max-w-4xl mx-auto p-8 rounded-3xl bg-gradient-to-r from-[#1B0C07] via-[#2A130B] to-[#1B0C07] border border-[#E3845A]/40 text-center relative overflow-hidden shadow-2xl">
-          <div className="relative z-10">
-            <h3 className="text-2xl font-bold text-white mb-2">Ready to Test Autonomous Vision QA?</h3>
-            <p className="text-xs text-[#D1B8AE] max-w-md mx-auto mb-6">
-              Evaluate real PCB, turbine, and pharma packaging test presets right in your browser.
+            <p className="text-xs text-[#D1B8AE] mt-2">
+              From hardware sensor photons to certified disposition in under half a second.
             </p>
-            <button
-              onClick={onLaunchApp}
-              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#E3845A] to-[#A74A21] hover:scale-105 text-white font-bold text-xs tracking-wider uppercase shadow-xl shadow-[#E3845A]/30 transition-all cursor-pointer"
-            >
-              Start Inspection Demo
-            </button>
           </div>
-        </div>
 
-      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div className="p-6 rounded-2xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/50 transition-all shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-[#E3845A]/15 border border-[#E3845A]/30 flex items-center justify-center text-[#E3845A] font-mono font-bold mb-4">
+                01
+              </div>
+              <h4 className="text-base font-bold text-[#FFFFFF]">Optical Capture</h4>
+              <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
+                Telecentric optics capture 4K raw frames under dual-band ring lighting to nullify reflections and shadows.
+              </p>
+              <div className="mt-4 pt-3 border-t border-[#3D180C] text-[10px] font-mono text-[#E3845A]">
+                Input: Raw Image / Webcam
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/50 transition-all shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-[#E3845A]/15 border border-[#E3845A]/30 flex items-center justify-center text-[#E3845A] font-mono font-bold mb-4">
+                02
+              </div>
+              <h4 className="text-base font-bold text-[#FFFFFF]">Spatial Alignment</h4>
+              <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
+                Normalizes component orientation against CAD fiducial markers for sub-pixel feature overlay alignment.
+              </p>
+              <div className="mt-4 pt-3 border-t border-[#3D180C] text-[10px] font-mono text-[#E3845A]">
+                Tolerance: ±0.05 mm
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/50 transition-all shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-[#E3845A]/15 border border-[#E3845A]/30 flex items-center justify-center text-[#E3845A] font-mono font-bold mb-4">
+                03
+              </div>
+              <h4 className="text-base font-bold text-[#FFFFFF]">Gemini 3.8 Vision</h4>
+              <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
+                Multimodal reasoning maps bounding boxes, calculates flaw severity, and infers machine tooling root causes.
+              </p>
+              <div className="mt-4 pt-3 border-t border-[#3D180C] text-[10px] font-mono text-[#E3845A]">
+                Latency: &lt; 500 ms
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/50 transition-all shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-[#E3845A]/15 border border-[#E3845A]/30 flex items-center justify-center text-[#E3845A] font-mono font-bold mb-4">
+                04
+              </div>
+              <h4 className="text-base font-bold text-[#FFFFFF]">Supabase Audit</h4>
+              <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
+                Immutable cloud PostgreSQL logging, personal operator history, real-time scrap analytics, and ISO certificate dispatch.
+              </p>
+              <div className="mt-4 pt-3 border-t border-[#3D180C] text-[10px] font-mono text-[#E3845A]">
+                Standard: ISO-9001:2015
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+
+      {/* ─────────────────────────────────────────────────────────────
+          SECTION 5: BOTTOM CALL TO ACTION
+          ───────────────────────────────────────────────────────────── */}
+      <section className="py-20 bg-gradient-to-b from-[#120704] to-[#0d0503] relative">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          
+          <div className="p-10 rounded-3xl bg-[#1B0C07] border border-[#E3845A]/40 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-1/4 w-80 h-80 bg-[#E3845A]/10 rounded-full blur-[90px] pointer-events-none" />
+
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#FFFFFF] tracking-tight">
+              Experience Autonomous Optical QA in Real-Time
+            </h2>
+            <p className="text-sm text-[#D1B8AE] mt-3 max-w-xl mx-auto">
+              Test verified benchmark components, upload your own production photos, or activate your optical camera.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <button
+                onClick={onLaunchApp}
+                className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider shadow-xl shadow-[#E3845A]/30 flex items-center space-x-2 transition-all hover:scale-[1.02]"
+              >
+                <Zap className="w-4 h-4 text-white" />
+                <span>Launch Live Inspection Console</span>
+              </button>
+
+              <button
+                onClick={() => onQuickDemo ? onQuickDemo('lead') : (onOpenLogin && onOpenLogin())}
+                className="px-6 py-3.5 rounded-xl bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] text-[#E3845A] font-mono text-xs font-semibold transition-all flex items-center space-x-2"
+              >
+                <Sparkles className="w-4 h-4 text-[#E3845A] animate-pulse" />
+                <span>1-Click Judge Access</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
     </div>
   );
 }
