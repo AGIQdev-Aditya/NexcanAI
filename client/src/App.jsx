@@ -81,7 +81,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2 font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span className="text-slate-300 font-bold">NAXCAN AI</span>
+            <span className="text-slate-300 font-bold">NEXCAN AI</span>
             <span>— Autonomous Computer Vision & Visual Quality Inspection</span>
           </div>
           <div className="flex items-center space-x-4 font-mono text-[11px]">
@@ -90,7 +90,7 @@ export default function App() {
             <span>Aditya • Vivek • Abhay • Rhugved</span>
             <span>•</span>
             <a
-              href="https://github.com/AGIQdev-Aditya/NaxcanAI"
+              href="https://github.com/AGIQdev-Aditya/NexcanAI"
               target="_blank"
               rel="noreferrer"
               className="text-emerald-400 hover:underline"

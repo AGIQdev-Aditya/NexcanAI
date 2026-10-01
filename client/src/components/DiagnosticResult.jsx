@@ -158,7 +158,7 @@ export default function DiagnosticResult({ result, onOpenCertModal }) {
 
         <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-1">
           <span>Standard: {iso_standard}</span>
-          <span>Station: NAXCAN-CV-UNIT-01</span>
+          <span>Station: NEXCAN-CV-UNIT-01</span>
         </div>
       </div>
 

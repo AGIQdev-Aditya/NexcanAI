@@ -31,7 +31,7 @@ app.use(errorHandler);
 
 const PORT = env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Naxcan AI Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Nexcan AI Server running on http://localhost:${PORT}`);
   console.log(`📡 Gemini Vision Model: ${env.GEMINI_MODEL}`);
   console.log(`🗄️  Supabase URL: ${env.SUPABASE_URL ? env.SUPABASE_URL : 'Running in fallback memory mode'}`);
 });

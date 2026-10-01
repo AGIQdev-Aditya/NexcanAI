@@ -8,7 +8,7 @@ export default function IsoCertificateModal({ isOpen, onClose, result }) {
     window.print();
   };
 
-  const certHash = `CERT-${(result.id || 'NAXCAN').slice(0, 8).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+  const certHash = `CERT-${(result.id || 'NEXCAN').slice(0, 8).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
@@ -85,7 +85,7 @@ export default function IsoCertificateModal({ isOpen, onClose, result }) {
             {/* Signature Area */}
             <div className="pt-4 border-t border-slate-800 flex items-end justify-between">
               <div>
-                <div className="font-mono text-emerald-400 font-bold text-sm tracking-widest">NAXCAN-VISION-V1</div>
+                <div className="font-mono text-emerald-400 font-bold text-sm tracking-widest">NEXCAN-VISION-V1</div>
                 <div className="text-[10px] text-slate-500">Autonomous Neural QA Engine</div>
               </div>
               <div className="text-right">

@@ -1,7 +1,7 @@
 {
-  "name": "naxcan-server",
+  "name": "nexcan-server",
   "version": "1.0.0",
-  "description": "Naxcan AI - Backend API with Google Gemini Vision & Supabase PostgreSQL",
+  "description": "Nexcan AI - Backend API with Google Gemini Vision & Supabase PostgreSQL",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

@@ -1,8 +1,8 @@
 {
-  "name": "naxcan-ai",
+  "name": "nexcan-ai",
   "version": "1.0.0",
   "private": true,
-  "description": "Naxcan AI - Industrial Autonomous Computer Vision & Visual Quality Assurance Platform",
+  "description": "Nexcan AI - Industrial Autonomous Computer Vision & Visual Quality Assurance Platform",
   "scripts": {
     "install:all": "npm install && npm --prefix server install && npm --prefix client install",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",

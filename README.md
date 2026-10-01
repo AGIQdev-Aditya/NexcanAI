@@ -1,8 +1,8 @@
-# 🔬 Naxcan AI — Autonomous Industrial Computer Vision & Visual Quality Inspection Platform
+# 🔬 Nexcan AI — Autonomous Industrial Computer Vision & Visual Quality Inspection Platform
 
-[![Hackathon Project](https://img.shields.io/badge/Hackathon-Computer%20Vision%20%26%20Visual%20Intelligence-blue.svg)](https://github.com/AGIQdev-Aditya/NaxcanAI)
-[![Stack](https://img.shields.io/badge/Stack-React%2018%20%7C%20Vite%20%7C%20Node.js%20%7C%20Supabase%20%7C%20Gemini%20Vision-emerald.svg)](https://github.com/AGIQdev-Aditya/NaxcanAI)
-[![Security](https://img.shields.io/badge/Security-Zero--Leak%20Environment-success.svg)](https://github.com/AGIQdev-Aditya/NaxcanAI)
+[![Hackathon Project](https://img.shields.io/badge/Hackathon-Computer%20Vision%20%26%20Visual%20Intelligence-blue.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![Stack](https://img.shields.io/badge/Stack-React%2018%20%7C%20Vite%20%7C%20Node.js%20%7C%20Supabase%20%7C%20Gemini%20Vision-emerald.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![Security](https://img.shields.io/badge/Security-Zero--Leak%20Environment-success.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
 
 ---
 
@@ -20,8 +20,8 @@ Manufacturing plants, electronics assembly lines, and infrastructure managers re
 
 ---
 
-## 💡 The Solution: Naxcan AI
-**Naxcan AI** is an autonomous industrial visual intelligence platform powered by **Google Gemini 3.8 Flash Multimodal Vision** and **Supabase Cloud PostgreSQL**.
+## 💡 The Solution: Nexcan AI
+**Nexcan AI** is an autonomous industrial visual intelligence platform powered by **Google Gemini 3.8 Flash Multimodal Vision** and **Supabase Cloud PostgreSQL**.
 
 1. **Multimodal Defect Inspection**: Instant visual scanning of PCB circuit boards, metal welds, structural concrete, and packaging via file upload, webcam, or industrial presets.
 2. **Defect Localization & Severity Analysis**: Identifies micro-anomalies, renders bounding box overlays, and assigns risk verdicts (`PASS`, `REWORK`, `SCRAP`).
@@ -33,7 +33,7 @@ Manufacturing plants, electronics assembly lines, and infrastructure managers re
 ## 🏗️ Architecture
 
 ```
-NaxcanAI/
+NexcanAI/
 ├── client/                     # Frontend (React 18 + Vite + Tailwind CSS)
 │   ├── public/                 # Static assets & icons
 │   ├── src/
@@ -72,8 +72,8 @@ NaxcanAI/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/AGIQdev-Aditya/NaxcanAI.git
-cd NaxcanAI
+git clone https://github.com/AGIQdev-Aditya/NexcanAI.git
+cd NexcanAI
 ```
 
 ### 2. Install Dependencies

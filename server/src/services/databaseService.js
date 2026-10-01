@@ -19,7 +19,7 @@ const memoryInspections = [
     root_cause: 'Thermal profile overshoot during secondary convection zone #4.',
     rework_instructions: 'Non-reworkable high-density array. Route to metallurgical failure analysis.',
     iso_standard: 'IPC-A-610 Class 3 / ISO-9001:2015',
-    inspector_id: 'NAXCAN-OPTICAL-01',
+    inspector_id: 'NEXCAN-OPTICAL-01',
     image_url: null,
   },
   {
@@ -38,7 +38,7 @@ const memoryInspections = [
     root_cause: 'Excess tool wear index (>85%) on 5-axis CNC endmill.',
     rework_instructions: 'Precision automated micro-abrasive rotary buffing at Station 4B.',
     iso_standard: 'AS9100D Clause 8.4 / ISO-9001:2015',
-    inspector_id: 'NAXCAN-OPTICAL-01',
+    inspector_id: 'NEXCAN-OPTICAL-01',
     image_url: null,
   },
   {
@@ -57,7 +57,7 @@ const memoryInspections = [
     root_cause: 'Heat seal thermal cycle within optimal 145°C tolerance.',
     rework_instructions: 'Direct automated feed into primary sterile packing crate.',
     iso_standard: 'ISO 13485 / ISO-9001:2015',
-    inspector_id: 'NAXCAN-OPTICAL-01',
+    inspector_id: 'NEXCAN-OPTICAL-01',
     image_url: null,
   },
 ];
@@ -79,7 +79,7 @@ export async function saveInspectionRecord(record) {
     root_cause: record.root_cause || '',
     rework_instructions: record.rework_instructions || '',
     iso_standard: record.iso_standard || 'ISO-9001:2015 Clause 8.5.1',
-    inspector_id: record.inspector_id || 'NAXCAN-CV-01',
+    inspector_id: record.inspector_id || 'NEXCAN-CV-01',
     image_url: record.image_url || null,
     raw_response: record.raw_response || {},
   };

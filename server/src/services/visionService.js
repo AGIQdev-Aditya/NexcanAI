@@ -18,7 +18,7 @@ export async function analyzeInspectionImage({ imageBase64, mimeType = 'image/jp
     if (mimeMatch) mimeType = mimeMatch[1];
   }
 
-  const prompt = `You are NAXCAN AI, an expert industrial computer vision quality assurance system certified to ISO-9001, AS9100D, and IPC-A-610 standards.
+  const prompt = `You are NEXCAN AI, an expert industrial computer vision quality assurance system certified to ISO-9001, AS9100D, and IPC-A-610 standards.
 Analyze the provided high-resolution manufacturing/component image.
 Component Hint: ${componentHint}
 

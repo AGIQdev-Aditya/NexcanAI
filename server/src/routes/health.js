@@ -7,7 +7,7 @@ const router = Router();
 router.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    service: 'Naxcan AI Visual Intelligence Engine',
+    service: 'Nexcan AI Visual Intelligence Engine',
     timestamp: new Date().toISOString(),
     gemini_connected: Boolean(env.GEMINI_API_KEY),
     supabase_connected: Boolean(supabase),

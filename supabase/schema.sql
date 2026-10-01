@@ -1,5 +1,5 @@
 -- ==========================================================
--- Naxcan AI: Industrial Computer Vision Quality Assurance Schema
+-- Nexcan AI: Industrial Computer Vision Quality Assurance Schema
 -- ==========================================================
 
 -- Enable pgcrypto extension for UUID generation if not already active
