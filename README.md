@@ -78,7 +78,70 @@ GET /api/health
 
 ---
 
-### 2. Autonomous Defect Inspection
+### 2. Operator Authentication & 1-Click Demo Login
+A complete drop-in React login component is available in `templates/LoginPage.jsx`.
+
+#### A. 1-Click Hackathon Demo Login (For Judges)
+```http
+POST /api/auth/demo
+Content-Type: application/json
+
+{ "role": "lead" } // or "operator"
+```
+**Response:**
+```json
+{
+  "success": true,
+  "token": "demo-token-demo-aditya-lead-...",
+  "user": {
+    "id": "demo-aditya-lead",
+    "email": "aditya.sharma@nexcan.ai",
+    "full_name": "Aditya Sharma",
+    "role": "Lead QA Engineer & Plant Lead",
+    "station": "Station #4 (High-Speed SMT Line)"
+  }
+}
+```
+
+#### B. Standard Sign In (Supabase Auth)
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "operator@nexcan.ai",
+  "password": "Password123!"
+}
+```
+
+#### C. Register Inspector
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "operator@nexcan.ai",
+  "password": "Password123!",
+  "full_name": "Aditya Sharma",
+  "role": "Lead QA Inspector"
+}
+```
+
+#### D. Google Sign-In Profile Sync
+```http
+POST /api/auth/google
+Content-Type: application/json
+
+{
+  "email": "judge@gmail.com",
+  "full_name": "Hackathon Judge",
+  "google_id": "123456"
+}
+```
+
+---
+
+### 3. Autonomous Defect Inspection
 ```http
 POST /api/inspect
 ```
@@ -140,7 +203,7 @@ const data = await res.json();
 
 ---
 
-### 3. Historical Audit Trail
+### 4. Historical Audit Trail
 ```http
 GET /api/audit?verdict=SCRAP&limit=20
 ```
@@ -148,7 +211,7 @@ Fetches historical inspection records directly from Supabase PostgreSQL.
 
 ---
 
-### 4. Yield & Production Analytics
+### 5. Yield & Production Analytics
 ```http
 GET /api/analytics
 ```

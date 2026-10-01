@@ -7,6 +7,7 @@ import healthRoute from './routes/health.js';
 import inspectRoute from './routes/inspect.js';
 import auditRoute from './routes/audit.js';
 import analyticsRoute from './routes/analytics.js';
+import authRoute from './routes/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // API Routes
 app.use('/api', healthRoute);
+app.use('/api/auth', authRoute);
 app.use('/api/inspect', inspectRoute);
 app.use('/api/audit', auditRoute);
 app.use('/api/analytics', analyticsRoute);
