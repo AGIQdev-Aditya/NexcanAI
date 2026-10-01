@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS inspections (
     rework_instructions TEXT DEFAULT '',
     iso_standard TEXT DEFAULT 'ISO-9001:2015 Clause 8.5.1',
     inspector_id TEXT DEFAULT 'AUTONOMOUS-CV-01',
+    user_id TEXT DEFAULT 'guest',
+    user_email TEXT DEFAULT 'guest@nexcan.ai',
     image_url TEXT,
     raw_response JSONB DEFAULT '{}'::jsonb
 );
@@ -31,6 +33,7 @@ CREATE TABLE IF NOT EXISTS inspections (
 CREATE INDEX IF NOT EXISTS idx_inspections_created_at ON inspections(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_inspections_verdict ON inspections(verdict);
 CREATE INDEX IF NOT EXISTS idx_inspections_category ON inspections(category);
+CREATE INDEX IF NOT EXISTS idx_inspections_user_email ON inspections(user_email);
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE inspections ENABLE ROW LEVEL SECURITY;

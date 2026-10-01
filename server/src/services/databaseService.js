@@ -125,7 +125,9 @@ export async function saveInspectionRecord(record) {
     root_cause: record.root_cause || '',
     rework_instructions: record.rework_instructions || '',
     iso_standard: record.iso_standard || 'ISO-9001:2015 Clause 8.5.1',
-    inspector_id: record.inspector_id || 'NEXCAN-CV-01',
+    inspector_id: record.inspector_id || record.user_email || 'NEXCAN-CV-01',
+    user_id: record.user_id || 'guest',
+    user_email: record.user_email || record.inspector_id || 'guest@nexcan.ai',
     image_url: record.image_url || null,
     raw_response: record.raw_response || {},
   };
@@ -136,29 +138,29 @@ export async function saveInspectionRecord(record) {
   // If Supabase is connected, attempt persistence to PostgreSQL
   if (supabase) {
     try {
+      const payload = {
+        id: item.id,
+        created_at: item.created_at,
+        batch_id: item.batch_id,
+        component_name: item.component_name,
+        category: item.category,
+        verdict: item.verdict,
+        confidence: item.confidence,
+        defect_detected: item.defect_detected,
+        defect_type: item.defect_type,
+        severity: item.severity,
+        dimensions_mm: item.dimensions_mm,
+        bounding_boxes: item.bounding_boxes,
+        root_cause: item.root_cause,
+        rework_instructions: item.rework_instructions,
+        iso_standard: item.iso_standard,
+        inspector_id: item.user_email || item.inspector_id,
+        image_url: item.image_url,
+      };
+
       const { data, error } = await supabase
         .from('inspections')
-        .insert([
-          {
-            id: item.id,
-            created_at: item.created_at,
-            batch_id: item.batch_id,
-            component_name: item.component_name,
-            category: item.category,
-            verdict: item.verdict,
-            confidence: item.confidence,
-            defect_detected: item.defect_detected,
-            defect_type: item.defect_type,
-            severity: item.severity,
-            dimensions_mm: item.dimensions_mm,
-            bounding_boxes: item.bounding_boxes,
-            root_cause: item.root_cause,
-            rework_instructions: item.rework_instructions,
-            iso_standard: item.iso_standard,
-            inspector_id: item.inspector_id,
-            image_url: item.image_url,
-          },
-        ])
+        .insert([payload])
         .select();
 
       if (error) {
@@ -174,7 +176,7 @@ export async function saveInspectionRecord(record) {
   return item;
 }
 
-export async function getInspectionHistory({ limit = 50, verdict, category } = {}) {
+export async function getInspectionHistory({ limit = 50, verdict, category, userEmail, userId } = {}) {
   if (supabase) {
     try {
       let query = supabase
@@ -185,6 +187,9 @@ export async function getInspectionHistory({ limit = 50, verdict, category } = {
 
       if (verdict) query = query.eq('verdict', verdict);
       if (category) query = query.eq('category', category);
+      if (userEmail && userEmail !== 'all') {
+        query = query.or(`inspector_id.eq.${userEmail},inspector_id.eq.NEXCAN-CV-01`);
+      }
 
       const { data, error } = await query;
       if (!error && data && data.length > 0) {
@@ -199,6 +204,9 @@ export async function getInspectionHistory({ limit = 50, verdict, category } = {
   let filtered = [...memoryInspections];
   if (verdict) filtered = filtered.filter((i) => i.verdict === verdict);
   if (category) filtered = filtered.filter((i) => i.category === category);
+  if (userEmail && userEmail !== 'all') {
+    filtered = filtered.filter((i) => i.inspector_id === userEmail || i.user_email === userEmail || i.inspector_id === 'NEXCAN-CV-01');
+  }
   return filtered.slice(0, limit);
 }
 

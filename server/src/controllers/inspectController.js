@@ -99,10 +99,16 @@ export async function handleInspect(req, res, next) {
       console.warn('⚠️ Supabase image upload notice:', uploadErr.message);
     }
 
-    // Persist to Supabase cloud database
+    const userEmail = req.body?.userEmail || req.headers['x-user-email'] || 'aditya.sharma@nexcan.ai';
+    const userId = req.body?.userId || req.headers['x-user-id'] || 'user-aditya';
+
+    // Persist to Supabase cloud database tagged to user account
     const savedRecord = await saveInspectionRecord({
       id: inspectionId,
       ...inspectionResult,
+      user_id: userId,
+      user_email: userEmail,
+      inspector_id: userEmail,
       image_url: publicImageUrl,
       raw_response: inspectionResult,
     });
