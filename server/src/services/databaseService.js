@@ -62,6 +62,52 @@ const memoryInspections = [
   },
 ];
 
+/**
+ * Uploads an inspection image to Supabase Storage and returns its public CDN URL.
+ */
+export async function uploadInspectionImage(id, imageBufferOrBase64, mimeType = 'image/jpeg') {
+  if (!supabase) return null;
+
+  try {
+    let buffer;
+    if (Buffer.isBuffer(imageBufferOrBase64)) {
+      buffer = imageBufferOrBase64;
+    } else if (typeof imageBufferOrBase64 === 'string') {
+      let clean = imageBufferOrBase64;
+      if (clean.includes(';base64,')) {
+        clean = clean.split(';base64,')[1];
+      }
+      buffer = Buffer.from(clean, 'base64');
+    } else {
+      return null;
+    }
+
+    const ext = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
+    const filePath = `${id}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('inspection-images')
+      .upload(filePath, buffer, {
+        contentType: mimeType,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.warn('⚠️ Supabase image upload notice:', uploadError.message);
+      return null;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('inspection-images')
+      .getPublicUrl(filePath);
+
+    return publicUrlData?.publicUrl || null;
+  } catch (err) {
+    console.warn('⚠️ Image upload exception:', err.message);
+    return null;
+  }
+}
+
 export async function saveInspectionRecord(record) {
   const item = {
     id: record.id || uuidv4(),

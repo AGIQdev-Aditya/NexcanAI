@@ -1,5 +1,6 @@
+import { v4 as uuidv4 } from 'uuid';
 import { analyzeInspectionImage } from '../services/visionService.js';
-import { saveInspectionRecord } from '../services/databaseService.js';
+import { saveInspectionRecord, uploadInspectionImage } from '../services/databaseService.js';
 
 export async function handleInspect(req, res, next) {
   try {
@@ -83,9 +84,26 @@ export async function handleInspect(req, res, next) {
       }
     }
 
+    // Generate unique inspection UUID
+    const inspectionId = uuidv4();
+
+    // Upload image to Supabase Storage Bucket for permanent CDN hosting
+    let publicImageUrl = null;
+    try {
+      publicImageUrl = await uploadInspectionImage(
+        inspectionId,
+        req.file ? req.file.buffer : imageBase64,
+        mimeType
+      );
+    } catch (uploadErr) {
+      console.warn('⚠️ Supabase image upload notice:', uploadErr.message);
+    }
+
     // Persist to Supabase cloud database
     const savedRecord = await saveInspectionRecord({
+      id: inspectionId,
       ...inspectionResult,
+      image_url: publicImageUrl,
       raw_response: inspectionResult,
     });
 
