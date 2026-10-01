@@ -234,3 +234,30 @@ svg [data-ring] {
     transform: none;
   }
 }
+
+/* Industrial Conveyor Ticker */
+@keyframes conveyorSlide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-conveyor {
+  display: flex;
+  width: max-content;
+  animation: conveyorSlide 30s linear infinite;
+}
+
+.animate-conveyor:hover {
+  animation-play-state: paused;
+}
+
+/* Laser sweep line animation */
+@keyframes laserSweep {
+  0% { top: 0%; opacity: 0.8; }
+  50% { top: 100%; opacity: 1; }
+  100% { top: 0%; opacity: 0.8; }
+}
+
+.animate-laser-sweep {
+  animation: laserSweep 3s ease-in-out infinite;
+}
