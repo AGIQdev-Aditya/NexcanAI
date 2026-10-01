@@ -41,14 +41,14 @@ export default function AnalyticsDashboard() {
     <div className="space-y-6">
       
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-sm">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-[#E3845A] mb-1">
-            <BarChart3 className="w-4 h-4" />
-            <span>OPERATIONAL YIELD INTELLIGENCE</span>
+          <div className="flex items-center space-x-2 text-xs font-mono text-[#8C7D73] mb-1 font-bold">
+            <BarChart3 className="w-4 h-4 text-[#C9B59C]" />
+            <span className="text-[#1C1815]">OPERATIONAL YIELD INTELLIGENCE</span>
           </div>
-          <h2 className="text-xl font-bold text-[#FFFFFF]">Line Production &amp; Defect Metrics</h2>
-          <p className="text-xs text-[#D1B8AE]">
+          <h2 className="text-xl font-bold text-[#1C1815]">Line Production &amp; Defect Metrics</h2>
+          <p className="text-xs text-[#6B5E55]">
             Real-time aggregate quality analytics synchronized with Supabase audit records.
           </p>
         </div>
@@ -56,9 +56,9 @@ export default function AnalyticsDashboard() {
         <button
           onClick={fetchMetrics}
           disabled={loading}
-          className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] hover:border-[#E3845A]/40 text-[#D1B8AE] hover:text-[#FFFFFF] text-xs font-medium self-start sm:self-auto transition-colors cursor-pointer"
+          className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-[#F9F8F6] hover:bg-[#D9CFC7] border border-[#D9CFC7] text-[#1C1815] text-xs font-medium self-start sm:self-auto transition-colors cursor-pointer shadow-sm"
         >
-          <RefreshCw className={`w-3.5 h-3.5 text-[#E3845A] ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 text-[#C9B59C] ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh Data</span>
         </button>
       </div>
@@ -67,51 +67,51 @@ export default function AnalyticsDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Card 1: Total Inspected */}
-        <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-lg">
-          <div className="flex items-center justify-between text-[#D1B8AE] text-xs mb-2">
+        <div className="p-5 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-sm">
+          <div className="flex items-center justify-between text-[#6B5E55] text-xs mb-2">
             <span>Total Units Inspected</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
           </div>
-          <div className="text-2xl font-extrabold text-[#FFFFFF] font-mono">{total}</div>
-          <div className="text-[11px] text-[#D1B8AE]/70 mt-1 font-mono">100% optical audit coverage</div>
+          <div className="text-2xl font-extrabold text-[#1C1815] font-mono">{total}</div>
+          <div className="text-[11px] text-[#8C7D73] mt-1 font-mono">100% optical audit coverage</div>
         </div>
 
         {/* Card 2: First-Pass Yield */}
-        <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-lg">
-          <div className="flex items-center justify-between text-[#D1B8AE] text-xs mb-2">
+        <div className="p-5 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-sm">
+          <div className="flex items-center justify-between text-[#6B5E55] text-xs mb-2">
             <span>First-Pass Yield (FPY)</span>
-            <TrendingUp className="w-4 h-4 text-[#E3845A]" />
+            <TrendingUp className="w-4 h-4 text-[#C9B59C]" />
           </div>
-          <div className="text-2xl font-extrabold text-[#E3845A] font-mono">{yieldRate}%</div>
-          <div className="w-full bg-[#120704] h-1.5 rounded-full mt-2 overflow-hidden border border-[#3D180C]">
-            <div className="bg-gradient-to-r from-[#A74A21] to-[#E3845A] h-full rounded-full" style={{ width: `${yieldRate}%` }} />
+          <div className="text-2xl font-extrabold text-[#1C1815] font-mono">{yieldRate}%</div>
+          <div className="w-full bg-[#F9F8F6] h-2 rounded-full mt-2 overflow-hidden border border-[#D9CFC7]">
+            <div className="bg-gradient-to-r from-[#D9CFC7] to-[#C9B59C] h-full rounded-full" style={{ width: `${yieldRate}%` }} />
           </div>
         </div>
 
         {/* Card 3: Defect Dispositions */}
-        <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-lg">
-          <div className="flex items-center justify-between text-[#D1B8AE] text-xs mb-2">
+        <div className="p-5 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-sm">
+          <div className="flex items-center justify-between text-[#6B5E55] text-xs mb-2">
             <span>Dispositions</span>
-            <AlertTriangle className="w-4 h-4 text-[#E3845A]" />
+            <AlertTriangle className="w-4 h-4 text-[#D97706]" />
           </div>
           <div className="flex items-center space-x-2 text-xs font-mono font-bold mt-1">
-            <span className="text-emerald-400">{passCount} PASS</span>
-            <span className="text-[#3D180C]">|</span>
-            <span className="text-[#E3845A]">{reworkCount} REWORK</span>
-            <span className="text-[#3D180C]">|</span>
-            <span className="text-red-400">{scrapCount} SCRAP</span>
+            <span className="text-[#16A34A]">{passCount} PASS</span>
+            <span className="text-[#D9CFC7]">|</span>
+            <span className="text-[#D97706]">{reworkCount} REWORK</span>
+            <span className="text-[#D9CFC7]">|</span>
+            <span className="text-[#DC2626]">{scrapCount} SCRAP</span>
           </div>
-          <div className="text-[11px] text-[#D1B8AE]/70 mt-1.5 font-mono">Automated routing active</div>
+          <div className="text-[11px] text-[#8C7D73] mt-1.5 font-mono">Automated routing active</div>
         </div>
 
         {/* Card 4: Financial Cost Savings */}
-        <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-lg">
-          <div className="flex items-center justify-between text-[#D1B8AE] text-xs mb-2">
+        <div className="p-5 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-sm">
+          <div className="flex items-center justify-between text-[#6B5E55] text-xs mb-2">
             <span>Scrap Cost Saved</span>
-            <DollarSign className="w-4 h-4 text-emerald-400" />
+            <DollarSign className="w-4 h-4 text-[#16A34A]" />
           </div>
-          <div className="text-2xl font-extrabold text-emerald-400 font-mono">${costSaved.toLocaleString()}</div>
-          <div className="text-[11px] text-[#D1B8AE]/70 mt-1 font-mono">Calculated at $450/flaw prevented</div>
+          <div className="text-2xl font-extrabold text-[#16A34A] font-mono">${costSaved.toLocaleString()}</div>
+          <div className="text-[11px] text-[#8C7D73] mt-1 font-mono">Calculated at $450/flaw prevented</div>
         </div>
 
       </div>
@@ -120,10 +120,10 @@ export default function AnalyticsDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Defect Distribution (7 cols) */}
-        <div className="lg:col-span-7 p-6 rounded-2xl bg-[#1B0C07] border border-[#3D180C] space-y-4 shadow-xl">
-          <div className="flex items-center justify-between pb-3 border-b border-[#3D180C]">
-            <h3 className="text-sm font-bold text-[#FFFFFF]">Identified Optical Defect Categories</h3>
-            <span className="text-xs font-mono text-[#D1B8AE]">Classified by Severity</span>
+        <div className="lg:col-span-7 p-6 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] space-y-4 shadow-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-[#D9CFC7]">
+            <h3 className="text-sm font-bold text-[#1C1815]">Identified Optical Defect Categories</h3>
+            <span className="text-xs font-mono text-[#6B5E55]">Classified by Severity</span>
           </div>
 
           <div className="space-y-4 pt-2">
@@ -132,12 +132,12 @@ export default function AnalyticsDashboard() {
               return (
                 <div key={name} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#FFFFFF] font-medium">{name}</span>
-                    <span className="text-[#E3845A] font-mono font-bold">{count} incident{count > 1 ? 's' : ''} ({pct}%)</span>
+                    <span className="text-[#1C1815] font-medium">{name}</span>
+                    <span className="text-[#8C7D73] font-mono font-bold">{count} incident{count > 1 ? 's' : ''} ({pct}%)</span>
                   </div>
-                  <div className="w-full bg-[#120704] h-2 rounded-full overflow-hidden border border-[#3D180C]">
+                  <div className="w-full bg-[#F9F8F6] h-2 rounded-full overflow-hidden border border-[#D9CFC7]">
                     <div
-                      className="bg-gradient-to-r from-[#A74A21] to-[#E3845A] h-full rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-[#D9CFC7] to-[#C9B59C] h-full rounded-full transition-all duration-500"
                       style={{ width: `${Math.max(pct, 12)}%` }}
                     />
                   </div>
@@ -148,24 +148,26 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Quality Insights & Recommendations (5 cols) */}
-        <div className="lg:col-span-5 p-6 rounded-2xl bg-[#1B0C07] border border-[#3D180C] space-y-4 shadow-xl">
-          <h3 className="text-sm font-bold text-[#FFFFFF] pb-3 border-b border-[#3D180C]">
+        <div className="lg:col-span-5 p-6 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] space-y-4 shadow-sm">
+          <h3 className="text-sm font-bold text-[#1C1815] pb-3 border-b border-[#D9CFC7]">
             Automated Quality Insights &amp; Tooling Alerts
           </h3>
 
-          <div className="space-y-3 text-xs text-[#D1B8AE] leading-relaxed">
-            <div className="p-3.5 rounded-xl bg-[#120704] border border-[#3D180C]">
-              <div className="font-bold text-[#E3845A] font-mono mb-1">
-                PASTE STENCIL WIPER CYCLE ALERT
+          <div className="space-y-3 text-xs text-[#6B5E55] leading-relaxed">
+            <div className="p-3.5 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7]">
+              <div className="font-bold text-[#8C7D73] font-mono mb-1 flex items-center space-x-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#C9B59C]"></span>
+                <span className="text-[#1C1815]">PASTE STENCIL WIPER CYCLE ALERT</span>
               </div>
               <p>
                 Solder bridge clusters on QFP-48 pitches indicate paste aperture contamination. Recalibrating wiper frequency from 5 to 3 prints reduces bridging by 82%.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#120704] border border-[#3D180C]">
-              <div className="font-bold text-[#34D399] font-mono mb-1">
-                CNC TOOL CHATTER SUPPRESSION
+            <div className="p-3.5 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7]">
+              <div className="font-bold text-[#16A34A] font-mono mb-1 flex items-center space-x-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>
+                <span className="text-[#1C1815]">CNC TOOL CHATTER SUPPRESSION</span>
               </div>
               <p>
                 Surface burr incidents on machined aluminum profiles have dropped 64% after adjusting spindle feed rate from 18,000 to 16,500 RPM.

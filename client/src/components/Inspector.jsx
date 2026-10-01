@@ -102,7 +102,8 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
 
   const stopWebcam = () => {
     if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = videoRef.current.srcObject.getTracks();
+      const stream = videoRef.current.srcObject;
+      const tracks = stream.getTracks();
       tracks.forEach((track) => track.stop());
       videoRef.current.srcObject = null;
     }
@@ -112,21 +113,23 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
   const captureWebcamSnapshot = () => {
     if (!videoRef.current) return;
     const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth || 640;
-    canvas.height = videoRef.current.videoHeight || 480;
+    canvas.width = videoRef.current.videoWidth || 1280;
+    canvas.height = videoRef.current.videoHeight || 720;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-    const dataUri = canvas.toDataURL('image/jpeg');
-    setSelectedImage(dataUri);
-    setComponentHint('Live Assembly Line Optical Capture');
-    setCategory('General');
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+    setSelectedImage(dataUrl);
+    setComponentHint('Live Camera Frame');
+    setCategory('General Optical');
+    setInspectionResult(null);
+    setErrorMsg(null);
     stopWebcam();
   };
 
   // Run AI Inspection
   const handleRunInspection = async () => {
     if (!selectedImage) {
-      setErrorMsg('Please select or upload an inspection image first.');
+      setErrorMsg('Please select or upload a component image first.');
       return;
     }
 
@@ -134,29 +137,30 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
     setErrorMsg(null);
 
     try {
-      const response = await inspectImage({
-        imageBase64: selectedImage,
-        componentHint: `${componentHint} [Tolerance: ${toleranceLimit}mm]`,
-        category: category,
-        userEmail: currentUser?.email || 'lead.inspector@nexcan.ai',
-        userId: currentUser?.id || 'lead-inspector',
+      const result = await inspectImage({
+        image: selectedImage,
+        component_name: componentHint,
+        category,
+        tolerance_limit_mm: parseFloat(toleranceLimit),
+        userEmail: currentUser?.email,
       });
 
-      if (response?.data) {
-        setInspectionResult(response.data);
-        if (onInspectionComplete) onInspectionComplete(response.data);
-      } else {
-        throw new Error('No inspection data received');
+      if (!result.success || !result.data) {
+        throw new Error(result.error || 'Failed to complete inspection analysis.');
+      }
+
+      setInspectionResult(result.data);
+      if (onInspectionComplete) {
+        onInspectionComplete(result.data);
       }
     } catch (err) {
       console.error('Inspection error:', err);
-      setErrorMsg(err.message || 'Vision inspection failed. Please try again.');
+      setErrorMsg(err.message || 'Vision inspection error. Ensure image is clear.');
     } finally {
       setIsScanning(false);
     }
   };
 
-  // Copy Raw JSON to Clipboard
   const handleCopyJson = () => {
     if (!inspectionResult) return;
     navigator.clipboard.writeText(JSON.stringify(inspectionResult, null, 2));
@@ -164,19 +168,18 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
     setTimeout(() => setCopiedJson(false), 2000);
   };
 
-  // Export Audit CSV
   const handleExportCsv = () => {
     if (!inspectionResult) return;
-    const headers = ['id', 'batch_id', 'component_name', 'verdict', 'confidence', 'defect_type', 'dimensions_mm', 'iso_standard'];
+    const headers = ['ID', 'Timestamp', 'Component', 'Category', 'Verdict', 'Defect Type', 'Confidence', 'Tolerance Dev'];
     const row = [
-      inspectionResult.id || 'NEXCAN-1',
-      inspectionResult.batch_id || 'BATCH-001',
+      inspectionResult.id || 'N/A',
+      inspectionResult.timestamp || new Date().toISOString(),
       `"${inspectionResult.component_name || ''}"`,
-      inspectionResult.verdict,
-      inspectionResult.confidence,
-      `"${inspectionResult.defect_type || ''}"`,
-      `"${inspectionResult.dimensions_mm || ''}"`,
-      `"${inspectionResult.iso_standard || ''}"`,
+      `"${inspectionResult.category || ''}"`,
+      inspectionResult.verdict || 'PASS',
+      `"${inspectionResult.defect_type || 'None'}"`,
+      `${inspectionResult.confidence || 0}%`,
+      `"${inspectionResult.dimensions_mm || '0.00 mm'}"`,
     ];
     const csvContent = 'data:text/csv;charset=utf-8,' + headers.join(',') + '\n' + row.join(',');
     const encodedUri = encodeURI(csvContent);
@@ -192,18 +195,18 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
     <div className="space-y-6">
       
       {/* Test Presets Selector */}
-      <div className="p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#3D180C] gap-2">
+      <div className="p-5 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#D9CFC7] gap-2">
           <div>
-            <h3 className="text-xs font-bold font-mono tracking-wider text-[#E3845A] uppercase flex items-center space-x-2">
-              <Sparkles className="w-3.5 h-3.5" />
+            <h3 className="text-xs font-bold font-mono tracking-wider text-[#1C1815] uppercase flex items-center space-x-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#C9B59C]" />
               <span>INDUSTRIAL QUALITY BENCHMARK PRESETS</span>
             </h3>
-            <p className="text-[11px] text-[#D1B8AE] mt-0.5">
+            <p className="text-[11px] text-[#6B5E55] mt-0.5">
               Select verified test components to evaluate autonomous defect recognition across high-throughput assemblies.
             </p>
           </div>
-          <div className="text-[10px] font-mono text-[#D1B8AE]/70 bg-[#120704] px-2.5 py-1 rounded-lg border border-[#3D180C]">
+          <div className="text-[10px] font-mono text-[#6B5E55] bg-[#F9F8F6] px-2.5 py-1 rounded-lg border border-[#D9CFC7]">
             Model: Gemini 3.8 Flash Vision
           </div>
         </div>
@@ -215,26 +218,26 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
               <button
                 key={preset.id}
                 onClick={() => handleSelectPreset(preset)}
-                className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+                className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer shadow-sm ${
                   isSelected
-                    ? 'border-[#E3845A] bg-[#2A130B] shadow-lg shadow-[#E3845A]/15 ring-1 ring-[#E3845A]/50'
-                    : 'border-[#3D180C] bg-[#120704] hover:border-[#E3845A]/40 hover:bg-[#1B0C07]'
+                    ? 'border-[#C9B59C] bg-[#F9F8F6] ring-2 ring-[#C9B59C]'
+                    : 'border-[#D9CFC7] bg-[#F9F8F6] hover:border-[#C9B59C]/60 hover:bg-[#EFE9E3]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
                     preset.expectedVerdict === 'PASS' 
-                      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                      ? 'bg-[#16A34A]/10 text-[#16A34A] border-[#16A34A]/30'
                       : preset.expectedVerdict === 'REWORK'
-                      ? 'bg-[#E3845A]/20 text-[#E3845A] border-[#E3845A]/40'
-                      : 'bg-red-500/15 text-red-400 border-red-500/30'
+                      ? 'bg-[#D97706]/10 text-[#D97706] border-[#D97706]/30'
+                      : 'bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/30'
                   }`}>
                     {preset.expectedVerdict}
                   </span>
-                  <span className="text-[10px] text-[#D1B8AE]/70 font-mono">{preset.category}</span>
+                  <span className="text-[10px] text-[#8C7D73] font-mono">{preset.category}</span>
                 </div>
-                <div className="text-xs font-bold text-[#FFFFFF] truncate">{preset.title}</div>
-                <div className="text-[10px] text-[#D1B8AE] line-clamp-2 mt-0.5">{preset.description}</div>
+                <div className="text-xs font-bold text-[#1C1815] truncate">{preset.title}</div>
+                <div className="text-[10px] text-[#6B5E55] line-clamp-2 mt-0.5">{preset.description}</div>
               </button>
             );
           })}
@@ -247,22 +250,22 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
         {/* Left: Image Feed & Controls (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           
-          <div className="rounded-2xl border border-[#3D180C] bg-[#1B0C07] p-4 shadow-xl">
+          <div className="rounded-2xl border border-[#D9CFC7] bg-[#EFE9E3] p-4 shadow-sm">
             
             {/* Action Bar */}
             <div className="flex items-center justify-between mb-3 text-xs">
-              <div className="font-mono text-[#D1B8AE] font-semibold flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-[#E3845A] animate-pulse"></span>
-                <span className="text-[#FFFFFF]">OPTICAL FEED SURFACE</span>
+              <div className="font-mono text-[#6B5E55] font-semibold flex items-center space-x-2">
+                <span className="w-2 h-2 rounded-full bg-[#C9B59C] animate-pulse"></span>
+                <span className="text-[#1C1815]">OPTICAL FEED SURFACE</span>
               </div>
 
               <div className="flex items-center space-x-2">
                 {/* Upload Button */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] hover:border-[#E3845A]/40 text-[#D1B8AE] hover:text-[#FFFFFF] text-xs font-mono transition-colors cursor-pointer"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#F9F8F6] hover:bg-[#D9CFC7] border border-[#D9CFC7] text-[#1C1815] text-xs font-mono transition-colors cursor-pointer shadow-sm"
                 >
-                  <Upload className="w-3.5 h-3.5 text-[#E3845A]" />
+                  <Upload className="w-3.5 h-3.5 text-[#C9B59C]" />
                   <span>Upload Image</span>
                 </button>
                 <input
@@ -277,7 +280,7 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                 {isWebcamActive ? (
                   <button
                     onClick={captureWebcamSnapshot}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#E3845A] to-[#A74A21] text-[#FFFFFF] text-xs font-bold shadow-md shadow-[#E3845A]/30 cursor-pointer"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#C9B59C] hover:bg-[#B8A389] text-[#1C1815] text-xs font-bold shadow-sm cursor-pointer"
                   >
                     <Camera className="w-3.5 h-3.5" />
                     <span>Snap Feed</span>
@@ -285,9 +288,9 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                 ) : (
                   <button
                     onClick={startWebcam}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] hover:border-[#E3845A]/40 text-[#D1B8AE] hover:text-[#FFFFFF] text-xs font-mono transition-colors cursor-pointer"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#F9F8F6] hover:bg-[#D9CFC7] border border-[#D9CFC7] text-[#1C1815] text-xs font-mono transition-colors cursor-pointer shadow-sm"
                   >
-                    <Camera className="w-3.5 h-3.5 text-[#E3845A]" />
+                    <Camera className="w-3.5 h-3.5 text-[#C9B59C]" />
                     <span>Live Camera</span>
                   </button>
                 )}
@@ -296,9 +299,9 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
 
             {/* Webcam Live Stream View */}
             {isWebcamActive ? (
-              <div className="relative rounded-xl overflow-hidden bg-[#120704] aspect-video flex items-center justify-center border border-[#E3845A]/50">
+              <div className="relative rounded-xl overflow-hidden bg-[#F9F8F6] aspect-video flex items-center justify-center border border-[#C9B59C]">
                 <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                <div className="absolute top-3 left-3 px-2 py-1 rounded bg-[#120704]/90 text-[#E3845A] text-[10px] font-mono border border-[#E3845A]/30">
+                <div className="absolute top-3 left-3 px-2 py-1 rounded bg-[#F9F8F6]/90 text-[#1C1815] text-[10px] font-mono border border-[#C9B59C]">
                   LIVE SENSOR FEED
                 </div>
               </div>
@@ -313,11 +316,11 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
             )}
 
             {/* Component Metadata & Tolerance Controls */}
-            <div className="mt-4 pt-4 border-t border-[#3D180C] space-y-3">
+            <div className="mt-4 pt-4 border-t border-[#D9CFC7] space-y-3">
               
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
                 <div className="sm:col-span-8">
-                  <label className="text-[10px] font-mono text-[#D1B8AE] block mb-1">
+                  <label className="text-[10px] font-mono text-[#6B5E55] block mb-1">
                     COMPONENT DESCRIPTION / SPECIFICATION HINT
                   </label>
                   <input
@@ -325,18 +328,18 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                     value={componentHint}
                     onChange={(e) => setComponentHint(e.target.value)}
                     placeholder="e.g. Solder leads, Turbine blade, Hermetic seal"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#120704] border border-[#3D180C] text-xs text-[#FFFFFF] placeholder-[#D1B8AE]/40 focus:outline-none focus:border-[#E3845A] font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7] text-xs text-[#1C1815] placeholder-[#6B5E55]/50 focus:outline-none focus:border-[#C9B59C] font-mono"
                   />
                 </div>
 
                 <div className="sm:col-span-4">
-                  <label className="text-[10px] font-mono text-[#D1B8AE] block mb-1">
+                  <label className="text-[10px] font-mono text-[#6B5E55] block mb-1">
                     TOLERANCE THRESHOLD
                   </label>
                   <select
                     value={toleranceLimit}
                     onChange={(e) => setToleranceLimit(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#120704] border border-[#3D180C] text-xs text-[#FFFFFF] focus:outline-none focus:border-[#E3845A] font-mono cursor-pointer"
+                    className="w-full px-3 py-2.5 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7] text-xs text-[#1C1815] focus:outline-none focus:border-[#C9B59C] font-mono cursor-pointer"
                   >
                     <option value="0.05">±0.05 mm (Strict Class 3)</option>
                     <option value="0.10">±0.10 mm (Balanced SMT)</option>
@@ -347,23 +350,23 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
 
               {/* Run Inspection Action Bar */}
               <div className="pt-2 flex items-center justify-between gap-3">
-                <div className="text-[11px] font-mono text-[#D1B8AE]/70 hidden sm:block">
+                <div className="text-[11px] font-mono text-[#8C7D73] hidden sm:block">
                   Standards: IPC-A-610 Class 3 / ISO-9001:2015
                 </div>
 
                 <button
                   onClick={handleRunInspection}
                   disabled={isScanning}
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#E3845A]/30 flex items-center justify-center space-x-2 shrink-0 transition-all cursor-pointer hover:scale-[1.02]"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#C9B59C] hover:bg-[#B8A389] disabled:opacity-50 text-[#1C1815] font-bold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center space-x-2 shrink-0 transition-all cursor-pointer hover:scale-[1.02]"
                 >
                   {isScanning ? (
                     <>
-                      <RefreshCw className="w-4 h-4 animate-spin text-[#FFFFFF]" />
+                      <RefreshCw className="w-4 h-4 animate-spin text-[#1C1815]" />
                       <span>Running Neural Inspection...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4 text-[#FFFFFF]" />
+                      <Sparkles className="w-4 h-4 text-[#1C1815]" />
                       <span>ANALYZE ANOMALIES</span>
                     </>
                   )}
@@ -374,8 +377,8 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
 
             {/* Error Message Alert */}
             {errorMsg && (
-              <div className="mt-3 p-3 rounded-xl bg-red-950/40 border border-red-800/60 flex items-center space-x-2 text-xs text-red-300">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+              <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200 flex items-center space-x-2 text-xs text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                 <span>{errorMsg}</span>
               </div>
             )}
@@ -390,14 +393,14 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
           {inspectionResult ? (
             <div className="space-y-3">
               {/* Output Tab Switcher */}
-              <div className="flex items-center justify-between p-1 bg-[#1B0C07] border border-[#3D180C] rounded-xl text-xs font-mono">
+              <div className="flex items-center justify-between p-1 bg-[#EFE9E3] border border-[#D9CFC7] rounded-xl text-xs font-mono shadow-inner">
                 <div className="flex items-center space-x-1">
                   <button
                     onClick={() => setActiveResultTab('report')}
                     className={`px-3 py-1.5 rounded-lg transition-all ${
                       activeResultTab === 'report'
-                        ? 'bg-[#E3845A] text-white font-bold shadow'
-                        : 'text-[#D1B8AE] hover:text-white'
+                        ? 'bg-[#C9B59C] text-[#1C1815] font-bold shadow-sm'
+                        : 'text-[#6B5E55] hover:text-[#1C1815]'
                     }`}
                   >
                     Diagnostic Report
@@ -406,8 +409,8 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                     onClick={() => setActiveResultTab('json')}
                     className={`px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1 ${
                       activeResultTab === 'json'
-                        ? 'bg-[#E3845A] text-white font-bold shadow'
-                        : 'text-[#D1B8AE] hover:text-white'
+                        ? 'bg-[#C9B59C] text-[#1C1815] font-bold shadow-sm'
+                        : 'text-[#6B5E55] hover:text-[#1C1815]'
                     }`}
                   >
                     <FileJson className="w-3.5 h-3.5" />
@@ -420,7 +423,7 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                   <button
                     onClick={handleExportCsv}
                     title="Export Audit CSV"
-                    className="p-1.5 text-[#D1B8AE] hover:text-white hover:bg-[#3D180C]/50 rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-[#6B5E55] hover:text-[#1C1815] hover:bg-[#D9CFC7]/50 rounded-lg transition-colors cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5" />
                   </button>
@@ -435,33 +438,33 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
                 />
               ) : (
                 /* View 2: Raw Neural Machine JSON Payload */
-                <div className="rounded-2xl border border-[#3D180C] bg-[#1B0C07] p-4 shadow-xl">
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#3D180C] text-xs font-mono text-[#D1B8AE]">
+                <div className="rounded-2xl border border-[#D9CFC7] bg-[#EFE9E3] p-4 shadow-sm">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#D9CFC7] text-xs font-mono text-[#6B5E55]">
                     <span>NEURAL PAYLOAD (REST JSON)</span>
                     <button
                       onClick={handleCopyJson}
-                      className="flex items-center space-x-1 px-2.5 py-1 rounded bg-[#120704] border border-[#3D180C] hover:border-[#E3845A]/40 text-[#E3845A] text-[11px] transition-colors cursor-pointer"
+                      className="flex items-center space-x-1 px-2.5 py-1 rounded bg-[#F9F8F6] border border-[#D9CFC7] hover:border-[#C9B59C] text-[#1C1815] text-[11px] transition-colors cursor-pointer"
                     >
-                      {copiedJson ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      {copiedJson ? <Check className="w-3 h-3 text-[#16A34A]" /> : <Copy className="w-3 h-3" />}
                       <span>{copiedJson ? 'Copied' : 'Copy JSON'}</span>
                     </button>
                   </div>
-                  <pre className="text-[11px] font-mono text-[#FAF9F6] bg-[#120704] p-3 rounded-xl border border-[#3D180C] overflow-x-auto max-h-[460px] leading-relaxed">
+                  <pre className="text-[11px] font-mono text-[#1C1815] bg-[#F9F8F6] p-3 rounded-xl border border-[#D9CFC7] overflow-x-auto max-h-[460px] leading-relaxed">
                     {JSON.stringify(inspectionResult, null, 2)}
                   </pre>
                 </div>
               )}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-[#3D180C] bg-[#1B0C07] p-8 text-center flex flex-col items-center justify-center min-h-[440px] shadow-xl">
-              <div className="w-14 h-14 rounded-2xl bg-[#120704] border border-[#3D180C] flex items-center justify-center mb-4 text-[#E3845A]">
-                <Sparkles className="w-7 h-7 text-[#E3845A] animate-pulse" />
+            <div className="rounded-2xl border border-dashed border-[#D9CFC7] bg-[#EFE9E3] p-8 text-center flex flex-col items-center justify-center min-h-[440px] shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-[#F9F8F6] border border-[#D9CFC7] flex items-center justify-center mb-4 text-[#C9B59C]">
+                <Sparkles className="w-7 h-7 text-[#C9B59C] animate-pulse" />
               </div>
-              <h4 className="text-base font-bold text-[#FFFFFF]">Awaiting Optical Inspection</h4>
-              <p className="text-xs text-[#D1B8AE] mt-2 max-w-xs leading-relaxed">
-                Select a benchmark preset or upload your production image, then click <strong className="text-[#E3845A]">Analyze Anomalies</strong> to evaluate defects with Gemini 3.8.
+              <h4 className="text-base font-bold text-[#1C1815]">Awaiting Optical Inspection</h4>
+              <p className="text-xs text-[#6B5E55] mt-2 max-w-xs leading-relaxed">
+                Select a benchmark preset or upload your production image, then click <strong className="text-[#1C1815]">Analyze Anomalies</strong> to evaluate defects with Gemini 3.8.
               </p>
-              <div className="mt-6 text-[11px] font-mono text-[#D1B8AE] border border-[#3D180C] bg-[#120704] px-4 py-2 rounded-xl">
+              <div className="mt-6 text-[11px] font-mono text-[#8C7D73] border border-[#D9CFC7] bg-[#F9F8F6] px-4 py-2 rounded-xl">
                 STANDARDS: ISO-9001 / IPC-A-610 CLASS 3
               </div>
             </div>

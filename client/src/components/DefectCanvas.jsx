@@ -26,7 +26,7 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
 
       // Optional Telecentric Coordinate Grid
       if (showGrid) {
-        ctx.strokeStyle = 'rgba(227, 132, 90, 0.2)';
+        ctx.strokeStyle = 'rgba(201, 181, 156, 0.4)';
         ctx.lineWidth = 1;
         const step = 40;
         for (let x = 0; x < canvas.width; x += step) {
@@ -48,10 +48,10 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
         return;
       }
 
-      // Determine bounding box stroke color using the warm terracotta & amber palette
+      // Determine bounding box stroke color using the luxury palette
       const isCritical = verdict === 'SCRAP';
-      const boxColor = isCritical ? '#F43F5E' : '#E3845A'; // Red or Warm Amber
-      const glowColor = isCritical ? 'rgba(244, 63, 94, 0.3)' : 'rgba(227, 132, 90, 0.3)';
+      const boxColor = isCritical ? '#DC2626' : '#C9B59C'; // Crimson or Camel Gold
+      const glowColor = isCritical ? 'rgba(220, 38, 38, 0.25)' : 'rgba(201, 181, 156, 0.28)';
 
       boundingBoxes.forEach((item, index) => {
         const coords = item.box_2d; // [ymin, xmin, ymax, xmax] in 0-1000 scale
@@ -112,22 +112,22 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
         ctx.fill();
 
         // Text inside pill
-        ctx.fillStyle = '#120704';
+        ctx.fillStyle = isCritical ? '#FFFFFF' : '#1C1815';
         ctx.fillText(labelText, x + 8, pillY + 15);
       });
     };
   }, [imageSrc, boundingBoxes, verdict, showGrid]);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-[#120704] border border-[#3D180C] flex flex-col items-center justify-center p-2 shadow-2xl">
+    <div className="relative rounded-2xl overflow-hidden bg-[#F9F8F6] border border-[#D9CFC7] flex flex-col items-center justify-center p-2 shadow-sm">
       
       {/* Interactive Canvas Toolbar */}
-      <div className="absolute top-4 right-4 z-20 flex items-center space-x-1.5 bg-[#1B0C07]/90 border border-[#3D180C] p-1.5 rounded-xl backdrop-blur-md shadow-lg">
+      <div className="absolute top-4 right-4 z-20 flex items-center space-x-1.5 bg-[#EFE9E3]/95 border border-[#D9CFC7] p-1.5 rounded-xl backdrop-blur-md shadow-sm">
         <button
           onClick={() => setShowGrid(!showGrid)}
           title="Toggle Optical Grid"
           className={`p-1.5 rounded-lg text-xs font-mono transition-colors ${
-            showGrid ? 'bg-[#E3845A] text-white' : 'text-[#D1B8AE] hover:text-white'
+            showGrid ? 'bg-[#C9B59C] text-[#1C1815] font-bold shadow-sm' : 'text-[#6B5E55] hover:text-[#1C1815]'
           }`}
         >
           <Grid className="w-3.5 h-3.5" />
@@ -135,14 +135,14 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
         <button
           onClick={() => setZoom((prev) => Math.min(prev + 0.25, 2.5))}
           title="Zoom In"
-          className="p-1.5 rounded-lg text-[#D1B8AE] hover:text-white hover:bg-[#3D180C]/50 transition-colors"
+          className="p-1.5 rounded-lg text-[#6B5E55] hover:text-[#1C1815] hover:bg-[#D9CFC7]/50 transition-colors"
         >
           <ZoomIn className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={() => setZoom((prev) => Math.max(prev - 0.25, 1))}
           title="Zoom Out"
-          className="p-1.5 rounded-lg text-[#D1B8AE] hover:text-white hover:bg-[#3D180C]/50 transition-colors"
+          className="p-1.5 rounded-lg text-[#6B5E55] hover:text-[#1C1815] hover:bg-[#D9CFC7]/50 transition-colors"
         >
           <ZoomOut className="w-3.5 h-3.5" />
         </button>
@@ -150,12 +150,12 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
           <button
             onClick={() => setZoom(1)}
             title="Reset Zoom"
-            className="p-1.5 rounded-lg text-[#E3845A] hover:bg-[#3D180C]/50 transition-colors"
+            className="p-1.5 rounded-lg text-[#1C1815] hover:bg-[#D9CFC7]/50 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
         )}
-        <span className="text-[10px] font-mono text-[#D1B8AE] px-1">{zoom.toFixed(1)}x</span>
+        <span className="text-[10px] font-mono text-[#6B5E55] px-1">{zoom.toFixed(1)}x</span>
       </div>
 
       {/* Viewport with Zoom capability */}
@@ -170,10 +170,10 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
       {/* Laser Scanning Overlay Animation */}
       {isScanning && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-          <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#E3845A] to-transparent shadow-[0_0_20px_#E3845A] animate-scanline" />
-          <div className="absolute inset-0 bg-[#E3845A]/10 flex items-center justify-center">
-            <div className="px-4 py-2 rounded-xl bg-[#120704]/90 border border-[#E3845A]/50 text-[#E3845A] font-mono text-xs flex items-center space-x-2 shadow-xl">
-              <span className="w-2 h-2 rounded-full bg-[#E3845A] animate-ping"></span>
+          <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#C9B59C] to-transparent shadow-[0_0_20px_#C9B59C] animate-scanline" />
+          <div className="absolute inset-0 bg-[#C9B59C]/10 flex items-center justify-center">
+            <div className="px-4 py-2 rounded-xl bg-[#F9F8F6]/95 border border-[#C9B59C] text-[#1C1815] font-mono text-xs flex items-center space-x-2 shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-[#C9B59C] animate-ping"></span>
               <span className="font-bold">GEMINI 3.8 FLASH VISION SCANNING...</span>
             </div>
           </div>

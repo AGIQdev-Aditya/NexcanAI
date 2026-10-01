@@ -11,10 +11,10 @@
 
 ## 👥 Team Nexus Four
 
-- **Aditya Sharma** ([@AGIQdev-Aditya](https://github.com/AGIQdev-Aditya)) — Team Lead & Backend/Vision Architect
-- **Vivek Gajdhane** ([@vivekgajdhane](https://github.com/vivekgajdhane)) — Frontend & UI/UX Engineer
-- **Abhay Singh** ([@abhaysingh1230](https://github.com/abhaysingh1230)) — Cloud & API Integration
-- **Rhugved Kulkarni** ([@rhugved2307](https://github.com/rhugved2307)) — AI Quality & Computer Vision
+- **Rhugved Kulkarni** ([@rhugved2307](https://github.com/rhugved2307)) — Team Lead & AI Quality / Computer Vision
+- **Aditya Sharma** ([@AGIQdev-Aditya](https://github.com/AGIQdev-Aditya)) — Team Member & Backend/Vision Architect
+- **Vivek Gajdhane** ([@vivekgajdhane](https://github.com/vivekgajdhane)) — Team Member & Frontend/UI Engineer
+- **Abhay Singh** ([@abhaysingh1230](https://github.com/abhaysingh1230)) — Team Member & Cloud/API Integration
 
 ---
 
@@ -84,7 +84,7 @@ Manufacturing plants, electronics assembly lines (SMT/PCB), and aerospace/defens
 - Click any past inspection to reload it directly into the inspection console with full bounding boxes and diagnostic metrics.
 
 ### 7. ⚡ 1-Click Judge & Operator Demo Authentication
-- Built-in **1-Click Demo Login** tailored for hackathon evaluators and line managers (`Lead QA Engineer` or `Line Operator`).
+- Built-in **1-Click Demo Login** tailored for hackathon evaluators and line managers (`Rhugved Kulkarni — Team Lead`, `Aditya Sharma — Core Team Member`, or `Vivek Gajdhane — Line Operator`).
 - Full Supabase Auth support (Email/Password registration and login) with persistent session tokens.
 
 ### 8. 🛡️ Zero-Downtime Fallback Architecture
@@ -112,7 +112,7 @@ NexcanAI/
 │   │   ├── data/                   # Default inspection presets & samples
 │   │   ├── services/               # Frontend API client (api.js)
 │   │   ├── App.jsx                 # Main application state & routing controller
-│   │   ├── index.css               # Obsidian/Terracotta industrial styling
+│   │   ├── index.css               # Architectural luxury palette styling (#F9F8F6, #EFE9E3, #D9CFC7, #C9B59C)
 │   │   └── main.jsx                # React DOM entry point
 │   ├── .env.example                # Client environment template
 │   ├── index.html                  # HTML5 application shell

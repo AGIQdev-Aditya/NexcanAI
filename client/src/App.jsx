@@ -73,10 +73,10 @@ export default function App() {
     } catch (err) {
       console.warn('Demo login note:', err.message);
       const fallbackUser = {
-        id: 'demo-lead-judge',
-        email: 'aditya.sharma@nexcan.ai',
-        full_name: 'Aditya Sharma',
-        role: 'Lead QA Engineer & Plant Lead',
+        id: 'demo-rhugved-lead',
+        email: 'rhugved.kulkarni@nexcan.ai',
+        full_name: 'Rhugved Kulkarni',
+        role: 'Team Lead & AI Quality Architect',
       };
       localStorage.setItem('nexcan_user', JSON.stringify(fallbackUser));
       setCurrentUser(fallbackUser);
@@ -99,7 +99,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#120704] text-[#FAF9F6] flex flex-col font-sans selection:bg-[#E3845A] selection:text-[#120704]">
+    <div className="min-h-screen bg-[#F9F8F6] text-[#1C1815] flex flex-col font-sans selection:bg-[#C9B59C] selection:text-[#1C1815]">
       {/* High-Precision Interactive Optical Reticle Cursor */}
       <CustomCursor />
       
@@ -129,24 +129,24 @@ export default function App() {
       ) : (
         <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full animate-fade-in">
           {/* Subheader breadcrumbs inside app view */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-[#3D180C]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-[#D9CFC7]">
             <div className="flex items-center space-x-3">
-              <span className="text-xs px-2.5 py-1 rounded-md bg-[#1B0C07] text-[#E3845A] border border-[#3D180C] font-mono font-bold">
+              <span className="text-xs px-2.5 py-1 rounded-md bg-[#EFE9E3] text-[#1C1815] border border-[#D9CFC7] font-mono font-bold shadow-sm">
                 {activeTab === 'inspect' && '🔍 OPTICAL INSPECTION CONSOLE'}
                 {activeTab === 'analytics' && '📊 REAL-TIME YIELD ANALYTICS'}
                 {activeTab === 'audit' && '📋 COMPLIANCE AUDIT TRAIL'}
               </span>
               {currentUser && (
-                <span className="text-xs text-[#D1B8AE] font-mono hidden sm:inline">
-                  Active Operator: <strong className="text-white">{currentUser.full_name || currentUser.name || currentUser.email}</strong>
+                <span className="text-xs text-[#6B5E55] font-mono hidden sm:inline">
+                  Active Operator: <strong className="text-[#1C1815]">{currentUser.full_name || currentUser.name || currentUser.email}</strong>
                 </span>
               )}
             </div>
 
-            <div className="flex items-center space-x-3 text-xs font-mono text-[#D1B8AE]">
-              <span>Vision: <strong className="text-emerald-400">Gemini 3.8 Flash</strong></span>
+            <div className="flex items-center space-x-3 text-xs font-mono text-[#6B5E55]">
+              <span>Vision: <strong className="text-[#16A34A]">Gemini 3.8 Flash</strong></span>
               <span>•</span>
-              <span>Cloud: <strong className="text-[#E3845A]">Supabase</strong></span>
+              <span>Cloud: <strong className="text-[#C9B59C]">Supabase</strong></span>
             </div>
           </div>
 
@@ -187,11 +187,11 @@ export default function App() {
       />
 
       {/* Global Footer */}
-      <footer className="border-t border-[#3D180C] bg-[#0d0503] py-5 text-xs text-[#D1B8AE]/70 mt-auto">
+      <footer className="border-t border-[#D9CFC7] bg-[#EFE9E3] py-5 text-xs text-[#6B5E55] mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2 font-mono">
-            <span className="w-2 h-2 rounded-full bg-[#E3845A]"></span>
-            <span className="text-[#FAF9F6] font-bold">NEXCAN AI</span>
+            <span className="w-2 h-2 rounded-full bg-[#C9B59C]"></span>
+            <span className="text-[#1C1815] font-bold">NEXCAN AI</span>
             <span>— Autonomous Computer Vision Quality Inspection</span>
           </div>
           <div className="flex items-center space-x-3 font-mono text-[11px]">
@@ -201,7 +201,7 @@ export default function App() {
               href="https://github.com/AGIQdev-Aditya/NexcanAI"
               target="_blank"
               rel="noreferrer"
-              className="text-[#E3845A] hover:underline"
+              className="text-[#1C1815] hover:text-[#C9B59C] font-semibold hover:underline"
             >
               GitHub Repository
             </a>

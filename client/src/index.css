@@ -3,38 +3,41 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --bg-obsidian: #0E0B0A;
-  --bg-surface: #171210;
-  --bg-card: rgba(28, 22, 19, 0.7);
-  --deep-shadow: #2E1B14;
-  --midtone: #A74A21;
+  color-scheme: light;
+  --bg-canvas: #F9F8F6;
+  --bg-surface: #EFE9E3;
+  --border-sandstone: #D9CFC7;
+  --accent-camel: #C9B59C;
+  --text-ink: #1C1815;
+  --text-muted: #6B5E55;
   
-  /* Oryzo-Inspired Pastel Color Palette */
-  --pastel-peach: #F5A882;
-  --pastel-peach-soft: #FDC5A9;
-  --pastel-mint: #A7F3D0;
-  --pastel-mint-bright: #6EE7B7;
-  --pastel-lilac: #DDD6FE;
-  --pastel-lilac-soft: #C4B5FD;
-  --pastel-rose: #FDA4AF;
-  --pastel-amber: #FDE68A;
-  --pastel-cream: #FAF8F5;
-  --text-muted: #C5B7AE;
+  --bg-obsidian: #F9F8F6;
+  --bg-surface-elevated: #EFE9E3;
+  --bg-card: rgba(239, 233, 227, 0.95);
+  --deep-shadow: rgba(28, 24, 21, 0.08);
+  --midtone: #C9B59C;
   
-  --safe: #A7F3D0;
-  --warning: #FDE68A;
-  --critical: #FDA4AF;
+  /* 4-Swatch Luxury Architectural Palette Tokens */
+  --palette-canvas: #F9F8F6;
+  --palette-pearl: #EFE9E3;
+  --palette-sandstone: #D9CFC7;
+  --palette-camel: #C9B59C;
+  --palette-ink: #1C1815;
+  --palette-stone: #6B5E55;
   
-  --warm-gradient: linear-gradient(135deg, #F5A882 0%, #E07A5F 50%, #3D1F17 100%);
-  --pastel-gradient: linear-gradient(135deg, #FAF8F5 0%, #F5A882 45%, #C4B5FD 100%);
-  --light-leak: radial-gradient(circle at 50% 20%, rgba(245, 168, 130, 0.16) 0%, rgba(196, 181, 253, 0.08) 45%, transparent 75%);
+  --safe: #16A34A;
+  --warning: #D97706;
+  --critical: #DC2626;
+  
+  --warm-gradient: linear-gradient(135deg, #EFE9E3 0%, #D9CFC7 50%, #C9B59C 100%);
+  --camel-gradient: linear-gradient(135deg, #D9CFC7 0%, #C9B59C 60%, #A38E73 100%);
+  --light-leak: radial-gradient(circle at 50% 20%, rgba(201, 181, 156, 0.22) 0%, rgba(217, 207, 199, 0.14) 45%, transparent 75%);
 }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-obsidian);
-  color: #FAF9F6;
+  background-color: var(--bg-canvas);
+  color: var(--text-ink);
   overflow-x: hidden;
 }
 
@@ -44,31 +47,31 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #120704;
+  background: #F9F8F6;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3D180C;
+  background: #D9CFC7;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #E3845A;
+  background: #C9B59C;
 }
 
 ::selection {
-  background-color: #E3845A;
-  color: #120704;
+  background-color: #C9B59C;
+  color: #1C1815;
 }
 
-/* Oryzo/Lusion-inspired technical dashed line */
+/* Technical dashed line */
 .o-dashline {
-  --dashline-color: rgba(227, 132, 90, 0.35);
+  --dashline-color: rgba(201, 181, 156, 0.45);
   height: 1px;
   background: repeating-linear-gradient(90deg, var(--dashline-color) 0 3px, transparent 0 6px);
   width: 100%;
 }
 
 .o-dashline-v {
-  --dashline-color: rgba(227, 132, 90, 0.35);
+  --dashline-color: rgba(201, 181, 156, 0.45);
   width: 1px;
   background: repeating-linear-gradient(0deg, var(--dashline-color) 0 3px, transparent 0 6px);
   height: 100%;
@@ -81,34 +84,35 @@ body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 600;
+  color: #6B5E55;
 }
 
 .sub2 {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.05em;
-  color: #D1B8AE;
+  color: #8C7D73;
 }
 
 .radar-grid {
   background-image: 
-    linear-gradient(to right, rgba(227, 132, 90, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(167, 74, 33, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(201, 181, 156, 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(217, 207, 199, 0.28) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
 .cinematic-glow {
-  box-shadow: 0 0 35px rgba(227, 132, 90, 0.22), 0 0 70px rgba(167, 74, 33, 0.12);
+  box-shadow: 0 0 35px rgba(201, 181, 156, 0.28), 0 0 70px rgba(217, 207, 199, 0.2);
 }
 
 .warm-gradient-text {
-  background: linear-gradient(135deg, #FFFFFF 0%, #E3845A 60%, #A74A21 100%);
+  background: linear-gradient(135deg, #1C1815 0%, #6B5E55 50%, #C9B59C 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .diffused-light-leak {
-  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(227, 132, 90, 0.25) 0%, rgba(167, 74, 33, 0.12) 40%, rgba(61, 24, 12, 0.05) 70%, transparent 100%);
+  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201, 181, 156, 0.2) 0%, rgba(217, 207, 199, 0.15) 40%, rgba(239, 233, 227, 0.5) 70%, transparent 100%);
 }
 
 /* 3D perspective for card flips */
@@ -172,22 +176,22 @@ body {
 [data-bars] i {
   flex: 1;
   height: 100%;
-  background: linear-gradient(to top, #A74A21, #E3845A);
+  background: linear-gradient(to top, #D9CFC7, #C9B59C);
   border-radius: 3px 3px 0 0;
   transform-origin: bottom;
   will-change: transform;
 }
 [data-temp].is-active {
-  background: #E3845A !important;
-  border-color: #E3845A !important;
-  color: #120704 !important;
+  background: #C9B59C !important;
+  border-color: #C9B59C !important;
+  color: #1C1815 !important;
   font-weight: 700 !important;
 }
 
 /* Gauge & Texture Shimmer */
 .gauge {
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(28, 24, 21, 0.08);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -196,7 +200,7 @@ body {
   width: 100%;
   transform-origin: left;
   transform: scaleX(0);
-  background: linear-gradient(90deg, #A74A21, #E3845A);
+  background: linear-gradient(90deg, #D9CFC7, #C9B59C);
 }
 [data-texture] {
   --mx: 50%;
@@ -204,13 +208,13 @@ body {
   position: relative;
   min-height: 240px;
   border-radius: 20px;
-  background: radial-gradient(circle at var(--mx) var(--my), rgba(227, 132, 90, 0.35), transparent 45%), #1B0C07;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(201, 181, 156, 0.35), transparent 45%), #EFE9E3;
 }
 
 /* SVG Compliance Rings */
 svg [data-ring] {
   fill: none;
-  stroke: #E3845A;
+  stroke: #C9B59C;
   stroke-width: 6;
   stroke-linecap: round;
   transform: rotate(-90deg);
@@ -364,15 +368,15 @@ svg [data-ring] {
 
 /* Subtle Interactive Glow & Card Tilt */
 .interactive-glass-card {
-  background: rgba(27, 12, 7, 0.7);
+  background: rgba(239, 233, 227, 0.85);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(61, 24, 12, 0.8);
+  border: 1px solid #D9CFC7;
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .interactive-glass-card:hover {
-  border-color: rgba(227, 132, 90, 0.45);
-  box-shadow: 0 10px 30px -10px rgba(227, 132, 90, 0.2);
+  border-color: #C9B59C;
+  box-shadow: 0 10px 30px -10px rgba(201, 181, 156, 0.35);
   transform: translateY(-2px);
 }
 

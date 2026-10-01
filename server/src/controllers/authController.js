@@ -4,15 +4,28 @@ import { supabase, supabaseAdmin, supabasePublic } from '../config/supabase.js';
 // In-memory secure user registry for 100% reliable local & fallback authentication
 const localUsers = new Map([
   [
+    'rhugved.kulkarni@nexcan.ai',
+    {
+      id: 'demo-rhugved-lead',
+      email: 'rhugved.kulkarni@nexcan.ai',
+      password: 'password123',
+      full_name: 'Rhugved Kulkarni',
+      role: 'Team Lead & AI Quality Architect',
+      station: 'Command Station #1 (Neural Core)',
+      badge: 'TEAM LEAD',
+      avatar_url: 'https://avatars.githubusercontent.com/u/rhugved2307?v=4',
+    }
+  ],
+  [
     'aditya.sharma@nexcan.ai',
     {
-      id: 'demo-aditya-lead',
+      id: 'demo-aditya-member',
       email: 'aditya.sharma@nexcan.ai',
       password: 'password123',
       full_name: 'Aditya Sharma',
-      role: 'Lead QA Engineer & Plant Lead',
+      role: 'Vision & Backend Architect',
       station: 'Station #4 (High-Speed SMT Line)',
-      badge: 'LEVEL-3 CERTIFIED AUDITOR',
+      badge: 'CORE TEAM MEMBER',
       avatar_url: 'https://avatars.githubusercontent.com/u/264315813?v=4',
     }
   ],
@@ -278,8 +291,12 @@ export async function handleGetMe(req, res, next) {
         const user = localUsers.get('operator@nexcan.ai');
         const { password: _, ...safeUser } = user;
         return res.status(200).json({ success: true, user: safeUser });
-      } else {
+      } else if (token.includes('aditya') || token.includes('member')) {
         const user = localUsers.get('aditya.sharma@nexcan.ai');
+        const { password: _, ...safeUser } = user;
+        return res.status(200).json({ success: true, user: safeUser });
+      } else {
+        const user = localUsers.get('rhugved.kulkarni@nexcan.ai') || localUsers.get('aditya.sharma@nexcan.ai');
         const { password: _, ...safeUser } = user;
         return res.status(200).json({ success: true, user: safeUser });
       }
@@ -314,7 +331,8 @@ export async function handleDemoLogin(req, res) {
   const role = req.body?.role || 'lead';
 
   const demoUsers = {
-    lead: localUsers.get('aditya.sharma@nexcan.ai'),
+    lead: localUsers.get('rhugved.kulkarni@nexcan.ai'),
+    member: localUsers.get('aditya.sharma@nexcan.ai'),
     operator: localUsers.get('operator@nexcan.ai'),
   };
 
