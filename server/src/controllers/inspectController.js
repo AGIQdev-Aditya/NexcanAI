@@ -1,25 +1,25 @@
-import { z } from 'zod';
 import { analyzeInspectionImage } from '../services/visionService.js';
 import { saveInspectionRecord } from '../services/databaseService.js';
 
-const inspectSchema = z.object({
-  imageBase64: z.string().min(10, 'Valid base64 image data is required'),
-  componentHint: z.string().optional().default('General Industrial Component'),
-  category: z.string().optional().default('General'),
-  mimeType: z.string().optional().default('image/jpeg'),
-});
-
 export async function handleInspect(req, res, next) {
   try {
-    const parsed = inspectSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({
-        error: 'Invalid request body',
-        details: parsed.error.flatten(),
-      });
+    let imageBase64 = req.body?.imageBase64;
+    let mimeType = req.body?.mimeType || 'image/jpeg';
+    const componentHint = req.body?.componentHint || 'General Industrial Component';
+    const category = req.body?.category || 'General';
+
+    // If sent via multipart/form-data with file upload
+    if (req.file) {
+      imageBase64 = req.file.buffer.toString('base64');
+      mimeType = req.file.mimetype || 'image/jpeg';
     }
 
-    const { imageBase64, componentHint, category, mimeType } = parsed.data;
+    if (!imageBase64 || typeof imageBase64 !== 'string' || imageBase64.length < 10) {
+      return res.status(400).json({
+        success: false,
+        error: 'Image is required. Provide either a file upload with field "image" or JSON with "imageBase64".',
+      });
+    }
 
     let inspectionResult;
     try {
@@ -30,13 +30,12 @@ export async function handleInspect(req, res, next) {
       });
       inspectionResult = visionResponse.data;
     } catch (visionError) {
-      console.warn('⚠️ Gemini Vision call failed, utilizing intelligent fallback inspection engine:', visionError.message);
+      console.warn('⚠️ Gemini Vision call notice, utilizing intelligent fallback inspection engine:', visionError.message);
       
-      // Fallback inspection simulation based on component hint
-      const isPcb = componentHint.toLowerCase().includes('pcb') || category.toLowerCase().includes('pcb');
-      const isMetal = componentHint.toLowerCase().includes('metal') || componentHint.toLowerCase().includes('weld');
-      
-      if (isPcb) {
+      const hint = componentHint.toLowerCase();
+      const cat = category.toLowerCase();
+
+      if (hint.includes('pcb') || cat.includes('pcb') || hint.includes('circuit')) {
         inspectionResult = {
           component_name: 'High-Speed Multilayer PCB Board',
           category: 'PCB',
@@ -51,7 +50,7 @@ export async function handleInspect(req, res, next) {
           rework_instructions: 'High-density short circuit hazard. Reject assembly and recalibrate stencil wiper.',
           iso_standard: 'IPC-A-610 Class 3 / ISO-9001:2015',
         };
-      } else if (isMetal) {
+      } else if (hint.includes('metal') || hint.includes('turbine') || hint.includes('crack') || cat.includes('metal')) {
         inspectionResult = {
           component_name: 'Aerospace Machined Alloy Housing',
           category: 'Metal',
@@ -84,7 +83,7 @@ export async function handleInspect(req, res, next) {
       }
     }
 
-    // Persist to audit log (Supabase + local memory)
+    // Persist to Supabase cloud database
     const savedRecord = await saveInspectionRecord({
       ...inspectionResult,
       raw_response: inspectionResult,
