@@ -1,7 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ZoomIn, ZoomOut, RotateCcw, Grid } from 'lucide-react';
 
 export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = 'PASS', isScanning = false }) {
   const canvasRef = useRef(null);
+  const [zoom, setZoom] = useState(1);
+  const [showGrid, setShowGrid] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -13,7 +16,6 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
     img.src = imageSrc;
 
     img.onload = () => {
-      // Set canvas dimension based on image aspect ratio while keeping maximum width
       const maxWidth = 640;
       const scale = Math.min(maxWidth / img.width, 1);
       canvas.width = img.width * scale;
@@ -21,6 +23,25 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
 
       // Draw base image
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Optional Telecentric Coordinate Grid
+      if (showGrid) {
+        ctx.strokeStyle = 'rgba(227, 132, 90, 0.2)';
+        ctx.lineWidth = 1;
+        const step = 40;
+        for (let x = 0; x < canvas.width; x += step) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += step) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+      }
 
       // If verdict is PASS or no bounding boxes, skip drawing defect overlays
       if (verdict === 'PASS' || !boundingBoxes || boundingBoxes.length === 0) {
@@ -95,15 +116,60 @@ export default function DefectCanvas({ imageSrc, boundingBoxes = [], verdict = '
         ctx.fillText(labelText, x + 8, pillY + 15);
       });
     };
-  }, [imageSrc, boundingBoxes, verdict]);
+  }, [imageSrc, boundingBoxes, verdict, showGrid]);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-[#120704] border border-[#3D180C] flex items-center justify-center p-2 shadow-2xl">
-      <canvas ref={canvasRef} className="max-w-full rounded-xl object-contain" />
+    <div className="relative rounded-2xl overflow-hidden bg-[#120704] border border-[#3D180C] flex flex-col items-center justify-center p-2 shadow-2xl">
+      
+      {/* Interactive Canvas Toolbar */}
+      <div className="absolute top-4 right-4 z-20 flex items-center space-x-1.5 bg-[#1B0C07]/90 border border-[#3D180C] p-1.5 rounded-xl backdrop-blur-md shadow-lg">
+        <button
+          onClick={() => setShowGrid(!showGrid)}
+          title="Toggle Optical Grid"
+          className={`p-1.5 rounded-lg text-xs font-mono transition-colors ${
+            showGrid ? 'bg-[#E3845A] text-white' : 'text-[#D1B8AE] hover:text-white'
+          }`}
+        >
+          <Grid className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => setZoom((prev) => Math.min(prev + 0.25, 2.5))}
+          title="Zoom In"
+          className="p-1.5 rounded-lg text-[#D1B8AE] hover:text-white hover:bg-[#3D180C]/50 transition-colors"
+        >
+          <ZoomIn className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => setZoom((prev) => Math.max(prev - 0.25, 1))}
+          title="Zoom Out"
+          className="p-1.5 rounded-lg text-[#D1B8AE] hover:text-white hover:bg-[#3D180C]/50 transition-colors"
+        >
+          <ZoomOut className="w-3.5 h-3.5" />
+        </button>
+        {zoom !== 1 && (
+          <button
+            onClick={() => setZoom(1)}
+            title="Reset Zoom"
+            className="p-1.5 rounded-lg text-[#E3845A] hover:bg-[#3D180C]/50 transition-colors"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+        )}
+        <span className="text-[10px] font-mono text-[#D1B8AE] px-1">{zoom.toFixed(1)}x</span>
+      </div>
+
+      {/* Viewport with Zoom capability */}
+      <div className="w-full overflow-hidden flex items-center justify-center rounded-xl min-h-[360px]">
+        <canvas
+          ref={canvasRef}
+          style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}
+          className="max-w-full rounded-xl object-contain transition-transform duration-200"
+        />
+      </div>
       
       {/* Laser Scanning Overlay Animation */}
       {isScanning && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
           <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#E3845A] to-transparent shadow-[0_0_20px_#E3845A] animate-scanline" />
           <div className="absolute inset-0 bg-[#E3845A]/10 flex items-center justify-center">
             <div className="px-4 py-2 rounded-xl bg-[#120704]/90 border border-[#E3845A]/50 text-[#E3845A] font-mono text-xs flex items-center space-x-2 shadow-xl">

@@ -27,7 +27,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom scrollbar matching moody espresso aesthetic */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -41,6 +41,42 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #E3845A;
+}
+
+::selection {
+  background-color: #E3845A;
+  color: #120704;
+}
+
+/* Oryzo/Lusion-inspired technical dashed line */
+.o-dashline {
+  --dashline-color: rgba(227, 132, 90, 0.35);
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--dashline-color) 0 3px, transparent 0 6px);
+  width: 100%;
+}
+
+.o-dashline-v {
+  --dashline-color: rgba(227, 132, 90, 0.35);
+  width: 1px;
+  background: repeating-linear-gradient(0deg, var(--dashline-color) 0 3px, transparent 0 6px);
+  height: 100%;
+}
+
+/* Technical typography hierarchy */
+.sub1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.sub2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  color: #D1B8AE;
 }
 
 .radar-grid {
@@ -60,10 +96,23 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-.warm-border-gradient {
-  background: linear-gradient(135deg, #E3845A, #A74A21, #3D180C);
-}
-
 .diffused-light-leak {
   background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(227, 132, 90, 0.25) 0%, rgba(167, 74, 33, 0.12) 40%, rgba(61, 24, 12, 0.05) 70%, transparent 100%);
+}
+
+/* 3D perspective for card flips */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
 }

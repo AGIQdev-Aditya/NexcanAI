@@ -25,6 +25,7 @@ import {
   Sliders,
   ChevronDown
 } from 'lucide-react';
+import OryzoShowcase from './OryzoShowcase.jsx';
 
 export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
   const scrollTrackRef = useRef(null);
@@ -393,6 +394,13 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
 
       </section>
 
+      {/* ─────────────────────────────────────────────────────────────
+          ORYZO-INSPIRED TECHNICAL SHOWCASE WIDGETS & CALIBRATION
+          ───────────────────────────────────────────────────────────── */}
+      <OryzoShowcase
+        onLaunchInspector={onLaunchApp}
+        onQuickDemo={onQuickDemo}
+      />
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 3: PROBLEM VS SOLUTION (THE INDUSTRIAL DISRUPTION)
