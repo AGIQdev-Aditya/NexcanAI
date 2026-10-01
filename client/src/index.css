@@ -116,3 +116,106 @@ body {
 .rotate-y-180 {
   transform: rotateY(180deg);
 }
+
+/* ─────────────────────────────────────────────────────────────
+   AWWWARDS / INDUSTRIAL SCROLL & SPRING ANIMATIONS (ORIGINAL ENGINE)
+   ───────────────────────────────────────────────────────────── */
+
+/* Word masks (splitWords) */
+.w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.w > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.is-in .w > span {
+  transform: none;
+}
+
+/* Softmax Probability Bars */
+[data-bars] {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 120px;
+}
+[data-bars] i {
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(to top, #A74A21, #E3845A);
+  border-radius: 3px 3px 0 0;
+  transform-origin: bottom;
+  will-change: transform;
+}
+[data-temp].is-active {
+  background: #E3845A !important;
+  border-color: #E3845A !important;
+  color: #120704 !important;
+  font-weight: 700 !important;
+}
+
+/* Gauge & Texture Shimmer */
+.gauge {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+[data-gauge] {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #A74A21, #E3845A);
+}
+[data-texture] {
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  min-height: 240px;
+  border-radius: 20px;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(227, 132, 90, 0.35), transparent 45%), #1B0C07;
+}
+
+/* SVG Compliance Rings */
+svg [data-ring] {
+  fill: none;
+  stroke: #E3845A;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* Velocity Marquee Ticker */
+[data-marquee] {
+  overflow: hidden;
+  white-space: nowrap;
+}
+[data-marquee] .track {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* 3D Testimonials Rail */
+[data-rail] {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+}
+[data-rail] > * {
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  transition: border-color 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w > span {
+    transition: none;
+    transform: none;
+  }
+}
