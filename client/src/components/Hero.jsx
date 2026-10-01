@@ -340,17 +340,29 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
           <div className="o-dashline my-8" />
 
           {/* 3D Flip Card Container */}
-          <div className="flip-scene max-w-lg mx-auto min-h-[280px]">
+          <div className="flip-scene relative max-w-lg mx-auto h-[320px] perspective-1000 my-6">
             <div
               data-flip-card
-              className="rounded-3xl p-1 h-[280px]"
+              className="relative w-full h-full preserve-3d"
+              style={{ transformStyle: 'preserve-3d', WebkitTransformStyle: 'preserve-3d' }}
             >
               
               {/* FRONT: RAW OPTICAL EXPOSURE */}
-              <div className="w-full h-full rounded-3xl bg-[#1B0C07] border border-[#3D180C] p-6 shadow-2xl flex flex-col justify-between">
+              <div
+                className="absolute inset-0 w-full h-full rounded-3xl bg-[#1B0C07] border border-[#3D180C] p-6 shadow-2xl flex flex-col justify-between backface-hidden"
+                style={{
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  transform: 'rotateY(0deg)',
+                  WebkitTransform: 'rotateY(0deg)',
+                }}
+              >
                 <div>
                   <div className="flex items-center justify-between text-xs font-mono text-[#D1B8AE] pb-3 border-b border-[#3D180C]">
-                    <span>STATE 01: RAW SENSOR CAPTURE</span>
+                    <span className="flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-[#E3845A]" />
+                      <span>STATE 01: RAW SENSOR CAPTURE</span>
+                    </span>
                     <span className="text-[#E3845A]">1/2400s • ISO 100</span>
                   </div>
 
@@ -369,8 +381,9 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
                 </div>
 
                 <button
+                  type="button"
                   data-mode="encode"
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center space-x-2 cursor-pointer"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#E3845A] via-[#A74A21] to-[#3D180C] hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center space-x-2 cursor-pointer transition-all active:scale-[0.98]"
                 >
                   <RotateCw className="w-4 h-4" />
                   <span>FLIP // INFER NEURAL BOUNDING BOX TENSOR</span>
@@ -378,10 +391,21 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
               </div>
 
               {/* BACK: DECODED TENSOR MAP */}
-              <div className="w-full h-full rounded-3xl bg-[#1B0C07] border border-[#E3845A]/60 p-6 shadow-2xl back flex flex-col justify-between">
+              <div
+                className="absolute inset-0 w-full h-full rounded-3xl bg-[#1B0C07] border border-[#E3845A]/60 p-6 shadow-2xl flex flex-col justify-between backface-hidden rotate-y-180"
+                style={{
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                  WebkitTransform: 'rotateY(180deg)',
+                }}
+              >
                 <div>
                   <div className="flex items-center justify-between text-xs font-mono text-[#E3845A] pb-3 border-b border-[#3D180C]">
-                    <span>STATE 02: NEURAL INFERENCE MAP</span>
+                    <span className="flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-[#E3845A] animate-ping" />
+                      <span>STATE 02: NEURAL INFERENCE MAP</span>
+                    </span>
                     <span className="bg-[#E3845A]/20 px-2 py-0.5 rounded border border-[#E3845A]/40 font-bold">
                       VERDICT: REWORK
                     </span>
@@ -398,8 +422,9 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
                 </div>
 
                 <button
+                  type="button"
                   data-mode="decode"
-                  className="w-full py-3 rounded-xl bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] text-[#E3845A] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                  className="w-full py-3 rounded-xl bg-[#120704] hover:bg-[#2A130B] border border-[#3D180C] text-[#E3845A] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-[0.98]"
                 >
                   <RotateCw className="w-4 h-4" />
                   <span>FLIP BACK // RETURN TO OPTICAL RAW</span>

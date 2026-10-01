@@ -170,7 +170,11 @@ export function animFlip(el) {
     handlers.push({ b, h });
   });
 
-  const loopOff = onFrame((dt) => (card.style.transform = `rotateY(${rot.step(dt)}deg)`));
+  const loopOff = onFrame((dt) => {
+    const deg = rot.step(dt);
+    card.style.transform = `rotateY(${deg}deg)`;
+    card.style.webkitTransform = `rotateY(${deg}deg)`;
+  });
   return [loopOff, () => handlers.forEach(({ b, h }) => b.removeEventListener('click', h))];
 }
 
