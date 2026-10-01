@@ -4,9 +4,15 @@
   "private": true,
   "description": "Nexcan AI - Industrial Autonomous Computer Vision & Visual Quality Assurance Platform",
   "scripts": {
-    "start": "npm --prefix server start",
-    "dev": "npm --prefix server run dev",
-    "build": "npm --prefix server run build"
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build && npm --prefix server run build",
+    "start": "npm --prefix server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   },
   "keywords": [
     "computer-vision",
@@ -15,7 +21,8 @@
     "manufacturing-qa",
     "gemini-vision",
     "supabase",
-    "express"
+    "react",
+    "vite"
   ],
   "author": "Team Nexus Four",
   "license": "MIT"
