@@ -1,11 +1,15 @@
 # 🔬 Nexcan AI — Autonomous Industrial Computer Vision & Visual Quality Inspection Platform
 
-[![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%7C%20Vite%20%7C%20TailwindCSS-06B6D4.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
-[![Backend](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express%20ESM-339933.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
-[![Vision AI](https://img.shields.io/badge/Vision%20AI-Google%20Gemini%203.8%20Flash%20Multimodal-4285F4.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
-[![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL%20%26%20Storage-3ECF8E.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
-[![Deployment](https://img.shields.io/badge/Deploy-Vercel%20%2B%20Render-000000.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
-[![License](https://img.shields.io/badge/License-MIT-amber.svg)](https://github.com/AGIQdev-Aditya/NexcanAI)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20Production-success?style=for-the-badge&logo=vercel)](https://client-ruby-nine-87.vercel.app)
+[![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%7C%20Vite%20%7C%20TailwindCSS-06B6D4.svg)](https://client-ruby-nine-87.vercel.app)
+[![Backend](https://img.shields.io/badge/Backend-Vercel%20Serverless%20%7C%20Node.js%20ESM-339933.svg)](https://client-ruby-nine-87.vercel.app)
+[![Vision AI](https://img.shields.io/badge/Vision%20AI-Google%20Gemini%20Multimodal-4285F4.svg)](https://ai.google.dev/)
+[![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL%20%26%20Storage-3ECF8E.svg)](https://supabase.com)
+[![Deployment](https://img.shields.io/badge/Deploy-Vercel%20Live-000000.svg)](https://client-ruby-nine-87.vercel.app)
+[![License](https://img.shields.io/badge/License-MIT-amber.svg)](./LICENSE)
+
+> 🚀 **Live Production Application**: **[https://client-ruby-nine-87.vercel.app](https://client-ruby-nine-87.vercel.app)**
+> ⚡ High-speed serverless deployment with sub-second response times, 24/7 cloud persistence, and instant defect inspection.
 
 ---
 
@@ -321,25 +325,23 @@ GET /api/analytics
 
 ---
 
-## 🚢 Cloud Deployment
+## 🚢 Cloud Deployment (Vercel Full-Stack)
 
-### Frontend (Vercel)
-The project includes a ready-to-use [`vercel.json`](./vercel.json):
-1. Connect your repository to Vercel.
-2. Root Directory: `./` (or `client`).
-3. Set environment variable `VITE_API_URL` to your production backend URL.
+Nexcan AI is deployed on **Vercel** as a unified full-stack serverless platform:
+- **Production URL**: [https://client-ruby-nine-87.vercel.app](https://client-ruby-nine-87.vercel.app)
+- **Frontend SPA**: React 18 + Vite compiled to optimized static assets delivered across Vercel's Global Edge CDN.
+- **Backend API**: Node.js Express Serverless Functions (`api/index.js`) handling `/api/*` with sub-second execution, 60s max duration, and 1GB memory.
+- **Cloud Database**: Persistent Supabase PostgreSQL with real-time inspection records and Supabase Storage bucket for visual defect archival.
 
-### Backend (Render)
-The repository includes a ready-to-use [`render.yaml`](./render.yaml):
-1. Connect your repository to Render as a Web Service.
-2. Build Command: `npm --prefix server install`
-3. Start Command: `npm --prefix server start`
-4. Configure your `GEMINI_API_KEY`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY`.
-
-### Database Setup (Supabase)
-1. Create a new project on [Supabase](https://supabase.com).
-2. Go to the SQL Editor and execute [`supabase/schema.sql`](./supabase/schema.sql).
-3. Create a public storage bucket named `inspection-images` if image upload persistence is desired.
+### Environment Variables Configured on Vercel:
+| Variable | Description |
+| :--- | :--- |
+| `GEMINI_API_KEY` | Google Gemini API Key |
+| `GEMINI_MODEL` | `gemini-2.0-flash` (or `gemini-3.8-flash`) |
+| `SUPABASE_URL` | Cloud Supabase PostgreSQL URL |
+| `SUPABASE_ANON_KEY` | Public client authentication key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Administrative service role key |
+| `NODE_ENV` | `production` |
 
 ---
 
