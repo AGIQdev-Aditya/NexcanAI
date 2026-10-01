@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Upload,
   Camera,
@@ -22,13 +22,13 @@ import DiagnosticResult from './DiagnosticResult.jsx';
 import { SAMPLE_PRESETS } from '../data/sampleInspections.js';
 import { inspectImage } from '../services/api.js';
 
-export default function Inspector({ onInspectionComplete, onOpenCertModal, currentUser }) {
+export default function Inspector({ onInspectionComplete, onOpenCertModal, currentUser, initialResult }) {
   const [selectedImage, setSelectedImage] = useState(SAMPLE_PRESETS[0].svgData);
   const [componentHint, setComponentHint] = useState(SAMPLE_PRESETS[0].hint);
   const [category, setCategory] = useState(SAMPLE_PRESETS[0].category);
   const [toleranceLimit, setToleranceLimit] = useState('0.05'); // 0.05mm, 0.10mm, 0.25mm
   const [isScanning, setIsScanning] = useState(false);
-  const [inspectionResult, setInspectionResult] = useState(null);
+  const [inspectionResult, setInspectionResult] = useState(initialResult || null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isWebcamActive, setIsWebcamActive] = useState(false);
   const [activeResultTab, setActiveResultTab] = useState('report'); // 'report' | 'json'
@@ -36,6 +36,22 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
 
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
+
+  // Sync inspection result when navigating from AuditLog
+  useEffect(() => {
+    if (initialResult) {
+      setInspectionResult(initialResult);
+      if (initialResult.image_url) {
+        setSelectedImage(initialResult.image_url);
+      }
+      if (initialResult.component_name) {
+        setComponentHint(initialResult.component_name);
+      }
+      if (initialResult.category) {
+        setCategory(initialResult.category);
+      }
+    }
+  }, [initialResult]);
 
   // Handle Preset Selection
   const handleSelectPreset = (preset) => {

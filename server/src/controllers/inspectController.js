@@ -23,6 +23,7 @@ export async function handleInspect(req, res, next) {
     }
 
     let inspectionResult;
+    let isFallback = false;
     try {
       const visionResponse = await analyzeInspectionImage({
         imageBase64,
@@ -32,6 +33,7 @@ export async function handleInspect(req, res, next) {
       inspectionResult = visionResponse.data;
     } catch (visionError) {
       console.warn('⚠️ Gemini Vision call notice, utilizing intelligent fallback inspection engine:', visionError.message);
+      isFallback = true;
       
       const hint = componentHint.toLowerCase();
       const cat = category.toLowerCase();
@@ -82,6 +84,8 @@ export async function handleInspect(req, res, next) {
           iso_standard: 'ISO-9001:2015 Clause 8.5.1',
         };
       }
+      inspectionResult.is_fallback = true;
+      inspectionResult.engine = 'simulated';
     }
 
     // Generate unique inspection UUID

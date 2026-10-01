@@ -112,10 +112,10 @@ export default function Navbar({
           {currentUser ? (
             <div className="flex items-center space-x-2 bg-[#1B0C07] border border-[#3D180C] py-1 px-2 rounded-xl">
               <div className="w-6 h-6 rounded-lg bg-[#E3845A]/20 border border-[#E3845A]/40 flex items-center justify-center text-[#E3845A] font-bold text-xs font-mono">
-                {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                {(currentUser.full_name || currentUser.name) ? (currentUser.full_name || currentUser.name).charAt(0).toUpperCase() : 'U'}
               </div>
               <span className="hidden md:inline text-[11px] font-bold text-white max-w-[80px] truncate">
-                {currentUser.name || currentUser.email.split('@')[0]}
+                {currentUser.full_name || currentUser.name || currentUser.email.split('@')[0]}
               </span>
               <button
                 onClick={onLogout}

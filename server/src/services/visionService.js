@@ -52,56 +52,93 @@ Return STRICTLY a JSON object matching this schema (do NOT include Markdown tick
 
 Note on coordinates: box_2d must be normalized integers from 0 to 1000 where [ymin, xmin, ymax, xmax] define the box (0 = top/left, 1000 = bottom/right). If verdict is PASS, bounding_boxes should be [].`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${env.GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${env.GEMINI_MODEL}:generateContent`;
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              {
-                inlineData: {
-                  mimeType: mimeType,
-                  data: cleanBase64,
-                },
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.1,
-          responseMimeType: 'application/json',
+  const MAX_RETRIES = 3;
+  let lastError;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': env.GEMINI_API_KEY,
         },
-      }),
-    });
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: cleanBase64,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            responseMimeType: 'application/json',
+          },
+        }),
+      });
 
-    if (!response.ok) {
-      const errBody = await response.text();
-      console.error(`Gemini Vision API error (${response.status}):`, errBody);
-      throw new Error(`Gemini Vision API returned ${response.status}: ${errBody}`);
+      clearTimeout(timeout);
+
+      if (response.status === 503 || response.status === 429) {
+        const errBody = await response.text();
+        console.warn(`Gemini API ${response.status} (attempt ${attempt}/${MAX_RETRIES}):`, errBody);
+        lastError = new Error(`Gemini API returned ${response.status}`);
+        if (attempt < MAX_RETRIES) {
+          const delay = Math.pow(2, attempt) * 500; // 1s, 2s backoff
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        throw lastError;
+      }
+
+      if (!response.ok) {
+        const errBody = await response.text();
+        console.error(`Gemini Vision API error (${response.status}):`, errBody);
+        throw new Error(`Gemini Vision API returned ${response.status}: ${errBody}`);
+      }
+
+      const json = await response.json();
+      const candidate = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!candidate) {
+        throw new Error('Gemini Vision did not return candidate text content');
+      }
+
+      // Clean any markdown formatting if present
+      const cleanJson = candidate.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+      const parsed = JSON.parse(cleanJson);
+
+      return {
+        success: true,
+        data: parsed,
+        raw: json,
+      };
+    } catch (error) {
+      lastError = error;
+      if (error.name === 'AbortError') {
+        console.warn(`Gemini API timeout (attempt ${attempt}/${MAX_RETRIES})`);
+        if (attempt < MAX_RETRIES) {
+          await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
+          continue;
+        }
+      }
+      if (attempt >= MAX_RETRIES) {
+        console.error('Vision analysis error after retries:', error.message);
+        throw error;
+      }
     }
-
-    const json = await response.json();
-    const candidate = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!candidate) {
-      throw new Error('Gemini Vision did not return candidate text content');
-    }
-
-    // Clean any markdown formatting if present
-    const cleanJson = candidate.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-    const parsed = JSON.parse(cleanJson);
-
-    return {
-      success: true,
-      data: parsed,
-      raw: json,
-    };
-  } catch (error) {
-    console.error('Vision analysis error:', error.message);
-    throw error;
   }
+  throw lastError;
 }

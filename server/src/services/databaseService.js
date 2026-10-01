@@ -192,7 +192,7 @@ export async function getInspectionHistory({ limit = 50, verdict, category, user
       }
 
       const { data, error } = await query;
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data;
       }
     } catch (err) {

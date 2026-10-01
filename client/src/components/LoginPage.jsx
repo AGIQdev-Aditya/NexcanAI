@@ -10,7 +10,7 @@ export default function LoginPage({ onLoginSuccess, onClose }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const API_BASE = '/api';
+  const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
   // 1-Click Demo Login for Judges & Testing
   const handleDemoLogin = async (demoRole = 'lead') => {

@@ -24,14 +24,14 @@ export default function AnalyticsDashboard() {
     fetchMetrics();
   }, []);
 
-  const total = metrics?.total_inspections || 14;
-  const passCount = metrics?.pass_count || 10;
-  const reworkCount = metrics?.rework_count || 3;
-  const scrapCount = metrics?.scrap_count || 1;
-  const yieldRate = metrics?.yield_rate || 71.4;
-  const costSaved = metrics?.cost_saved_usd || 1800;
+  const total = metrics?.total_inspections ?? 14;
+  const passCount = metrics?.pass_count ?? 10;
+  const reworkCount = metrics?.rework_count ?? 3;
+  const scrapCount = metrics?.scrap_count ?? 1;
+  const yieldRate = metrics?.yield_rate ?? 71.4;
+  const costSaved = metrics?.cost_saved_usd ?? 1800;
 
-  const defectBreakdown = metrics?.defect_breakdown || {
+  const defectBreakdown = metrics?.defect_breakdown ?? {
     'Solder Bridging (QFP Lead Pitch)': 2,
     'Surface Burr on Chamfer Edge': 1,
     'Micro-Crack Thermal Fatigue': 1,

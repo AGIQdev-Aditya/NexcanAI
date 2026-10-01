@@ -135,7 +135,7 @@ export default function App() {
               </span>
               {currentUser && (
                 <span className="text-xs text-[#D1B8AE] font-mono hidden sm:inline">
-                  Active Operator: <strong className="text-white">{currentUser.name || currentUser.email}</strong>
+                  Active Operator: <strong className="text-white">{currentUser.full_name || currentUser.name || currentUser.email}</strong>
                 </span>
               )}
             </div>
@@ -152,6 +152,7 @@ export default function App() {
               currentUser={currentUser}
               onInspectionComplete={handleInspectionComplete}
               onOpenCertModal={() => setIsCertModalOpen(true)}
+              initialResult={currentResult}
             />
           )}
 
