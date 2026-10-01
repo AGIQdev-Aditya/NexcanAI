@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   ShieldCheck,
   Zap,
@@ -28,68 +28,18 @@ import {
 import OryzoShowcase from './OryzoShowcase.jsx';
 
 export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
-  const scrollTrackRef = useRef(null);
   const videoRef = useRef(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isAutoPlay, setIsAutoPlay] = useState(false); // Default to scroll scrubbing
+  const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
 
-  // High-performance scroll-driven video scrubbing (Apple-style)
-  useEffect(() => {
-    if (isAutoPlay) return;
-
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const track = scrollTrackRef.current;
-          const video = videoRef.current;
-          if (!track || !video || isNaN(video.duration)) {
-            ticking = false;
-            return;
-          }
-
-          const rect = track.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
-          const totalDistance = rect.height - windowHeight;
-
-          if (totalDistance <= 0) {
-            ticking = false;
-            return;
-          }
-
-          // Progress from 0.0 when top hits top of viewport, to 1.0 when bottom hits bottom of viewport
-          const scrolled = -rect.top;
-          const progress = Math.min(Math.max(scrolled / totalDistance, 0), 1);
-
-          setScrollProgress(progress);
-
-          // Update video frame smoothly (scrub video with -g 1 intra-frames)
-          if (!isNaN(video.duration) && video.duration > 0) {
-            video.currentTime = progress * video.duration;
-          }
-
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // initialize on mount
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isAutoPlay]);
-
-  const toggleAutoPlay = () => {
+  const togglePlay = () => {
     if (!videoRef.current) return;
-    if (isAutoPlay) {
+    if (isPlaying) {
       videoRef.current.pause();
-      setIsAutoPlay(false);
+      setIsPlaying(false);
     } else {
       videoRef.current.play();
-      setIsAutoPlay(true);
+      setIsPlaying(true);
     }
   };
 
@@ -105,7 +55,7 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
       {/* ─────────────────────────────────────────────────────────────
           SECTION 1: HERO OVERVIEW & INTRO
           ───────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden pt-12 pb-16 border-b border-[#3D180C] bg-[#120704] radar-grid">
+      <section className="relative overflow-hidden pt-12 pb-14 border-b border-[#3D180C] bg-[#120704] radar-grid">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[550px] diffused-light-leak pointer-events-none" />
         <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-[#E3845A]/12 blur-[140px] pointer-events-none rounded-full" />
 
@@ -192,167 +142,66 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
             </div>
           </div>
 
-          {/* Interactive Scroll Prompt */}
-          <div className="mt-12 flex flex-col items-center justify-center space-y-2 text-[#D1B8AE]/70 animate-bounce">
-            <span className="text-xs font-mono tracking-widest uppercase">Scroll Down to Scrub 3D Optical Hardware</span>
-            <ChevronDown className="w-4 h-4 text-[#E3845A]" />
-          </div>
-
         </div>
       </section>
 
-
       {/* ─────────────────────────────────────────────────────────────
-          SECTION 2: FULL-SPACE STICKY SCROLL VIDEO THEATER (APPLE-STYLE)
+          SECTION 2: 3D OPTICAL HARDWARE RIG SHOWCASE (SMOOTH & STABLE)
           ───────────────────────────────────────────────────────────── */}
-      <section ref={scrollTrackRef} className="relative h-[320vh] bg-[#120704]">
-        
-        {/* Sticky Viewport Stage */}
-        <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden bg-[#120704] z-20">
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="relative rounded-3xl border border-[#3D180C] bg-[#1B0C07] overflow-hidden shadow-2xl">
           
-          {/* Subtle Diffused Backing Glow */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(227,132,90,0.12)_0%,rgba(18,7,4,0.95)_70%)] pointer-events-none" />
+          {/* Backing Ambient Radial Glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(227,132,90,0.12)_0%,rgba(18,7,4,0.95)_75%)] pointer-events-none" />
 
-          {/* The Full-Space Video Element */}
-          <div className="relative w-full h-full max-w-[1920px] flex items-center justify-center">
-            
+          {/* Clean Responsive Video Container */}
+          <div className="relative w-full aspect-video sm:aspect-[21/9] max-h-[560px] flex items-center justify-center bg-[#0d0503] overflow-hidden">
             <video
               ref={videoRef}
-              src="/videos/hero-render-scrub.mp4"
+              src="/videos/hero-render.mp4"
               playsInline
+              autoPlay
+              loop
               muted={isMuted}
-              loop={isAutoPlay}
-              autoPlay={false}
-              className="w-full h-full object-cover sm:object-contain transition-opacity duration-300 pointer-events-none select-none"
+              className="w-full h-full object-cover object-center pointer-events-none select-none"
             />
 
-            {/* Edge Vignette & Ambient Darkness Overlays to blend flawlessly into #120704 */}
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#120704] via-transparent to-[#120704]/90" />
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#120704] via-transparent to-[#120704]" />
+            {/* Vignette gradients to blend video seamlessly into Obsidian theme */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#1B0C07] via-transparent to-[#1B0C07]/70" />
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#1B0C07]/80 via-transparent to-[#1B0C07]/80" />
 
-            {/* Optical Alignment Crosshairs & Laser Overlay */}
-            <div className="absolute inset-8 pointer-events-none border border-[#E3845A]/15 rounded-3xl hidden md:block">
-              {/* Corner Reticles */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#E3845A]" />
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#E3845A]" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[#E3845A]" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#E3845A]" />
+            {/* Optical Alignment Reticles */}
+            <div className="absolute inset-6 pointer-events-none border border-[#E3845A]/20 rounded-2xl hidden md:block">
+              <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#E3845A]" />
+              <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#E3845A]" />
+              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#E3845A]" />
+              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#E3845A]" />
             </div>
 
-            {/* Dynamic Laser Scanline sweeping down based on scroll */}
-            <div
-              className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#E3845A] to-transparent shadow-[0_0_15px_#E3845A] pointer-events-none transition-all duration-75"
-              style={{ top: `${Math.min(Math.max(scrollProgress * 100, 10), 90)}%` }}
-            />
-
-            {/* TOP FLOATING HUD: Live Telemetry Bar */}
-            <div className="absolute top-6 left-6 right-6 flex items-center justify-between pointer-events-none z-30">
-              <div className="flex items-center space-x-3 bg-[#1B0C07]/90 border border-[#3D180C] px-3.5 py-1.5 rounded-xl backdrop-blur-md shadow-xl">
+            {/* TOP TELEMETRY HUD */}
+            <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+              <div className="flex items-center space-x-2.5 bg-[#120704]/90 border border-[#3D180C] px-3.5 py-1.5 rounded-xl backdrop-blur-md shadow-lg">
                 <span className="w-2 h-2 rounded-full bg-[#E3845A] animate-ping" />
                 <span className="font-mono text-xs text-[#FFFFFF] font-bold">NEXCAN 3D OPTICAL RIG</span>
-                <span className="text-[#3D180C]">|</span>
-                <span className="font-mono text-[11px] text-[#D1B8AE] hidden sm:inline">
-                  POS: X:{(120 + scrollProgress * 40).toFixed(1)}mm Y:{(60 + scrollProgress * 30).toFixed(1)}mm
-                </span>
+                <span className="text-[#3D180C] hidden sm:inline">|</span>
+                <span className="font-mono text-[11px] text-[#D1B8AE] hidden sm:inline">TELECENTRIC 4K SENSOR</span>
               </div>
 
-              <div className="flex items-center space-x-2 bg-[#1B0C07]/90 border border-[#3D180C] px-3 py-1.5 rounded-xl backdrop-blur-md shadow-xl">
+              <div className="flex items-center space-x-2 bg-[#120704]/90 border border-[#3D180C] px-3.5 py-1.5 rounded-xl backdrop-blur-md shadow-lg">
                 <Cpu className="w-3.5 h-3.5 text-[#E3845A]" />
-                <span className="font-mono text-xs text-[#FFFFFF]">GEMINI 3.8 REASONING</span>
+                <span className="font-mono text-xs text-[#FFFFFF]">GEMINI 3.8 VISION CORE</span>
               </div>
             </div>
 
-            {/* CENTER FLOATING NARRATIVE MILESTONE (Transitions with Scroll Progress) */}
-            <div className="absolute inset-x-4 sm:inset-x-auto sm:left-12 sm:max-w-md bottom-28 sm:bottom-24 pointer-events-auto z-30">
-              
-              {/* Milestone 1: 0% - 25% */}
-              {scrollProgress < 0.25 && (
-                <div className="p-6 rounded-2xl bg-[#1B0C07]/95 border border-[#3D180C] shadow-2xl backdrop-blur-xl animate-fade-in">
-                  <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
-                    <Scan className="w-4 h-4" />
-                    <span>01 / HIGH-RESOLUTION OPTICAL SCAN</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#FFFFFF]">Sub-Millimeter Surface Profiling</h3>
-                  <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
-                    Custom telecentric lenses illuminate micro-fractures, dimensional warpage, and solder voids with 0.05 mm precision.
-                  </p>
-                </div>
-              )}
-
-              {/* Milestone 2: 25% - 52% */}
-              {scrollProgress >= 0.25 && scrollProgress < 0.52 && (
-                <div className="p-6 rounded-2xl bg-[#1B0C07]/95 border border-[#3D180C] shadow-2xl backdrop-blur-xl animate-fade-in">
-                  <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
-                    <Cpu className="w-4 h-4" />
-                    <span>02 / MULTIMODAL VISION CORE</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#FFFFFF]">Gemini 3.8 Visual Intelligence</h3>
-                  <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
-                    Eliminates human inspector eye fatigue. Evaluates complex geometries, contextual defect severity, and IPC-A-610 criteria.
-                  </p>
-                </div>
-              )}
-
-              {/* Milestone 3: 52% - 78% */}
-              {scrollProgress >= 0.52 && scrollProgress < 0.78 && (
-                <div className="p-6 rounded-2xl bg-[#1B0C07]/95 border border-[#3D180C] shadow-2xl backdrop-blur-xl animate-fade-in">
-                  <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
-                    <Zap className="w-4 h-4" />
-                    <span>03 / SUB-500MS DISPOSITION</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#FFFFFF]">Autonomous PASS / REWORK / SCRAP</h3>
-                  <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
-                    Instant factory routing decisions. Outputs explicit rework coordinates and instructions directly to technician workstations.
-                  </p>
-                </div>
-              )}
-
-              {/* Milestone 4: 78% - 100% */}
-              {scrollProgress >= 0.78 && (
-                <div className="p-6 rounded-2xl bg-[#1B0C07]/95 border border-[#E3845A]/40 shadow-2xl backdrop-blur-xl animate-fade-in">
-                  <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
-                    <Award className="w-4 h-4" />
-                    <span>04 / ISO-9001 COMPLIANCE</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#FFFFFF]">Supabase Audit &amp; Certificate</h3>
-                  <p className="text-xs text-[#D1B8AE] mt-2 leading-relaxed">
-                    Immutable PostgreSQL audit trail with operator attribution, downloadable compliance certificates, and real-time yield analytics.
-                  </p>
-                  <div className="mt-4 flex items-center space-x-2">
-                    <button
-                      onClick={onLaunchApp}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#E3845A] to-[#A74A21] text-[#FFFFFF] font-bold text-xs uppercase shadow-md hover:brightness-110 transition-all flex items-center space-x-1.5"
-                    >
-                      <Zap className="w-3.5 h-3.5" />
-                      <span>Launch Console</span>
-                    </button>
-                    <button
-                      onClick={() => onQuickDemo ? onQuickDemo('lead') : (onOpenLogin && onOpenLogin())}
-                      className="px-3.5 py-2 rounded-xl bg-[#120704] border border-[#3D180C] text-[#E3845A] text-xs font-mono hover:bg-[#3D180C]/50 transition-colors"
-                    >
-                      Judge Demo
-                    </button>
-                  </div>
-                </div>
-              )}
-
-            </div>
-
-            {/* BOTTOM HUD: Interactive Scrub Controls & Progress Track */}
-            <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-center justify-between gap-3 z-30 pointer-events-auto">
-              
-              {/* Playback Mode Switcher */}
-              <div className="flex items-center space-x-2 bg-[#1B0C07]/90 border border-[#3D180C] p-1.5 rounded-xl backdrop-blur-md">
+            {/* BOTTOM CONTROLS & CTA HUD */}
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-10">
+              <div className="flex items-center space-x-2 bg-[#120704]/90 border border-[#3D180C] p-1.5 rounded-xl backdrop-blur-md">
                 <button
-                  onClick={toggleAutoPlay}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-mono flex items-center space-x-1.5 transition-all ${
-                    isAutoPlay
-                      ? 'bg-gradient-to-r from-[#E3845A] to-[#A74A21] text-[#FFFFFF] font-bold shadow-md'
-                      : 'text-[#D1B8AE] hover:text-[#FFFFFF]'
-                  }`}
+                  onClick={togglePlay}
+                  className="px-2.5 py-1 text-xs text-[#D1B8AE] hover:text-[#FFFFFF] rounded-lg hover:bg-[#3D180C]/50 transition-colors flex items-center space-x-1.5 font-mono"
                 >
-                  {isAutoPlay ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                  <span>{isAutoPlay ? 'Auto-Playing' : 'Scroll Scrub Mode'}</span>
+                  {isPlaying ? <Pause className="w-3.5 h-3.5 text-[#E3845A]" /> : <Play className="w-3.5 h-3.5 text-[#E3845A]" />}
+                  <span className="hidden sm:inline">{isPlaying ? 'Pause' : 'Play'}</span>
                 </button>
 
                 <button
@@ -360,38 +209,72 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
                   title="Toggle Audio"
                   className="p-1.5 text-[#D1B8AE] hover:text-white rounded-lg hover:bg-[#3D180C]/50 transition-colors"
                 >
-                  {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-[#E3845A]" />}
                 </button>
               </div>
 
-              {/* Real-time Scrubbing Meter */}
-              <div className="w-full sm:w-80 bg-[#1B0C07]/90 border border-[#3D180C] p-2.5 rounded-xl backdrop-blur-md flex items-center space-x-3">
-                <div className="text-[11px] font-mono text-[#D1B8AE] whitespace-nowrap">
-                  FRAME SCRUB: <strong className="text-[#FFFFFF]">{Math.round(scrollProgress * 100)}%</strong>
-                </div>
-                <div className="w-full bg-[#120704] h-2 rounded-full overflow-hidden border border-[#3D180C]">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#A74A21] via-[#E3845A] to-[#FFFFFF] transition-all duration-75 shadow-[0_0_10px_#E3845A]"
-                    style={{ width: `${scrollProgress * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Quick Launch CTA */}
               <button
                 onClick={onLaunchApp}
-                className="hidden md:flex items-center space-x-2 px-4 py-2 rounded-xl bg-[#1B0C07]/90 hover:bg-[#2A130B] border border-[#E3845A]/40 text-[#E3845A] text-xs font-mono font-bold backdrop-blur-md shadow-lg transition-all"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#E3845A] to-[#A74A21] hover:brightness-110 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider shadow-lg flex items-center space-x-2 transition-all hover:scale-[1.02]"
               >
-                <span>Launch App</span>
+                <Zap className="w-3.5 h-3.5" />
+                <span>Launch Live Inspector</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
+            </div>
 
+          </div>
+
+          {/* 4 Core Pillars Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 sm:p-8 border-t border-[#3D180C] bg-[#150905]">
+            
+            <div className="p-4 rounded-xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 transition-colors shadow-md">
+              <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
+                <Scan className="w-4 h-4" />
+                <span>01 / OPTICAL SCAN</span>
+              </div>
+              <h4 className="text-sm font-bold text-[#FFFFFF]">Sub-Millimeter Profiling</h4>
+              <p className="text-xs text-[#D1B8AE] mt-1.5 leading-relaxed">
+                Custom telecentric optics isolate micro-fractures and voids with 0.05 mm precision.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 transition-colors shadow-md">
+              <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
+                <Cpu className="w-4 h-4" />
+                <span>02 / VISION CORE</span>
+              </div>
+              <h4 className="text-sm font-bold text-[#FFFFFF]">Gemini 3.8 Intelligence</h4>
+              <p className="text-xs text-[#D1B8AE] mt-1.5 leading-relaxed">
+                Zero human fatigue. Evaluates complex geometries against IPC-A-610 criteria.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 transition-colors shadow-md">
+              <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
+                <Zap className="w-4 h-4" />
+                <span>03 / ROUTING ENGINE</span>
+              </div>
+              <h4 className="text-sm font-bold text-[#FFFFFF]">&lt; 500ms Disposition</h4>
+              <p className="text-xs text-[#D1B8AE] mt-1.5 leading-relaxed">
+                Automated PASS / REWORK / SCRAP routing with pinpoint coordinate directives.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#1B0C07] border border-[#3D180C] hover:border-[#E3845A]/40 transition-colors shadow-md">
+              <div className="flex items-center space-x-2 text-[#E3845A] text-xs font-mono font-bold mb-2">
+                <Award className="w-4 h-4" />
+                <span>04 / ISO-9001 AUDIT</span>
+              </div>
+              <h4 className="text-sm font-bold text-[#FFFFFF]">Supabase Traceability</h4>
+              <p className="text-xs text-[#D1B8AE] mt-1.5 leading-relaxed">
+                Immutable cloud logs, operator attribution, and downloadable certificates.
+              </p>
             </div>
 
           </div>
 
         </div>
-
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
@@ -405,10 +288,10 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
       {/* ─────────────────────────────────────────────────────────────
           SECTION 3: PROBLEM VS SOLUTION (THE INDUSTRIAL DISRUPTION)
           ───────────────────────────────────────────────────────────── */}
-      <section className="py-24 border-b border-[#3D180C] bg-[#120704] relative">
+      <section className="py-20 border-b border-[#3D180C] bg-[#120704] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-14">
             <span className="text-xs font-mono text-[#E3845A] tracking-wider uppercase bg-[#1B0C07] px-3 py-1 rounded-full border border-[#3D180C]">
               Why Manual QA Fails High-Volume Assembly
             </span>
@@ -498,14 +381,13 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
         </div>
       </section>
 
-
       {/* ─────────────────────────────────────────────────────────────
           SECTION 4: END-TO-END VISION PIPELINE
           ───────────────────────────────────────────────────────────── */}
       <section className="py-20 border-b border-[#3D180C] bg-[#120704]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-14">
             <span className="text-xs font-mono text-[#E3845A] tracking-wider uppercase bg-[#1B0C07] px-3 py-1 rounded-full border border-[#3D180C]">
               Architecture Blueprint
             </span>
@@ -575,7 +457,6 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
 
         </div>
       </section>
-
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 5: BOTTOM CALL TO ACTION
