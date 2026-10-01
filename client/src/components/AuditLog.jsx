@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Filter, RefreshCw, CheckCircle2, AlertTriangle, XOctagon, Search } from 'lucide-react';
+import { Database, Filter, RefreshCw, CheckCircle2, AlertTriangle, XOctagon, Search, Lock, ShieldCheck } from 'lucide-react';
 import { getAuditLogs } from '../services/api.js';
 
 export default function AuditLog({ onSelectInspection, currentUser }) {
@@ -7,7 +7,8 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
   const [loading, setLoading] = useState(true);
   const [filterVerdict, setFilterVerdict] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [onlyMyLogs, setOnlyMyLogs] = useState(false);
+  // Strictly default to viewing private user logs if an operator is logged in
+  const [onlyMyLogs, setOnlyMyLogs] = useState(() => Boolean(currentUser));
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -27,8 +28,14 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
   };
 
   useEffect(() => {
+    if (currentUser) {
+      setOnlyMyLogs(true);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
     fetchLogs();
-  }, [filterVerdict, onlyMyLogs]);
+  }, [filterVerdict, onlyMyLogs, currentUser?.email]);
 
   const filteredLogs = logs.filter((log) => {
     const q = searchQuery.toLowerCase();
@@ -44,42 +51,42 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
     switch (verdict) {
       case 'PASS':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#A7F3D0]/15 text-[#A7F3D0] border border-[#A7F3D0]/30">
             <CheckCircle2 className="w-3 h-3" />
             <span>PASS</span>
           </span>
         );
       case 'REWORK':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FDE68A]/15 text-[#FDE68A] border border-[#FDE68A]/30">
             <AlertTriangle className="w-3 h-3" />
             <span>REWORK</span>
           </span>
         );
       case 'SCRAP':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-red-500/15 text-red-400 border border-red-500/30">
+          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FDA4AF]/15 text-[#FDA4AF] border border-[#FDA4AF]/30">
             <XOctagon className="w-3 h-3" />
             <span>SCRAP</span>
           </span>
         );
       default:
-        return <span className="text-xs font-mono text-slate-400">{verdict}</span>;
+        return <span className="text-xs font-mono text-[#C5B7AE]">{verdict}</span>;
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 animate-fade-in font-sans">
       
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#1B0C07] border border-[#3D180C] shadow-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#171210] border border-[#2D1F1A] shadow-lg">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-[#E3845A] mb-1">
-            <Database className="w-4 h-4" />
-            <span>SUPABASE CLOUD POSTGRESQL AUDIT REPOSITORY</span>
+          <div className="flex items-center space-x-2 text-xs font-mono text-[#F5A882] mb-1">
+            <Database className="w-4 h-4 text-[#F5A882]" />
+            <span>CRYPTOGRAPHIC OPTICAL AUDIT REPOSITORY</span>
           </div>
-          <h2 className="text-xl font-bold text-white">Optical Inspection Audit Trail</h2>
-          <p className="text-xs text-[#D1B8AE]">
+          <h2 className="text-xl font-bold text-[#FAF8F5]">Optical Inspection Audit Trail</h2>
+          <p className="text-xs text-[#C5B7AE]">
             Immutable inspection log certified to ISO-9001:2015 Clause 8.5.1 requirements.
           </p>
         </div>
@@ -88,71 +95,89 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
           {currentUser && (
             <button
               onClick={() => setOnlyMyLogs(!onlyMyLogs)}
-              className={`px-3 py-2 rounded-xl text-xs font-mono font-medium transition-colors border ${
+              data-cursor="pointer"
+              className={`px-3 py-2 rounded-xl text-xs font-mono font-semibold transition-all border flex items-center space-x-1.5 cursor-pointer ${
                 onlyMyLogs
-                  ? 'bg-[#E3845A] text-white border-[#E3845A]'
-                  : 'bg-[#120704] text-[#D1B8AE] border-[#3D180C] hover:border-[#E3845A]/50'
+                  ? 'bg-[#F5A882] text-[#0E0B0A] border-[#F5A882] shadow-sm'
+                  : 'bg-[#0E0B0A] text-[#C5B7AE] border-[#2D1F1A] hover:border-[#F5A882]/50'
               }`}
             >
-              {onlyMyLogs ? `👤 My Records (${currentUser.email})` : '👤 Filter My Records'}
+              <Lock className="w-3 h-3" />
+              <span>{onlyMyLogs ? 'Private Ledger (Active)' : 'Show All Plant Logs'}</span>
             </button>
           )}
 
           <button
             onClick={fetchLogs}
             disabled={loading}
-            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-[#120704] hover:bg-[#3D180C] text-[#D1B8AE] hover:text-white border border-[#3D180C] text-xs font-medium transition-colors"
+            data-cursor="pointer"
+            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-[#0E0B0A] hover:bg-[#231A16] text-[#C5B7AE] hover:text-white border border-[#2D1F1A] text-xs font-medium transition-colors cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>Sync DB</span>
+            <span>Sync</span>
           </button>
         </div>
       </div>
+
+      {/* User Privacy Status Notification */}
+      {currentUser && onlyMyLogs && (
+        <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#0E0B0A] border border-[#A7F3D0]/30 text-xs text-[#A7F3D0] font-mono">
+          <div className="flex items-center space-x-2">
+            <ShieldCheck className="w-4 h-4 text-[#A7F3D0]" />
+            <span><strong>Private Vault Active:</strong> Strictly isolating inspection records to operator <strong className="text-white">{currentUser.email}</strong>.</span>
+          </div>
+          <span className="text-[10px] text-[#C5B7AE] hidden md:inline">CONFIDENTIALITY GUARANTEED</span>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-[#D1B8AE] absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-[#C5B7AE] absolute left-3 top-2.5" />
           <input
             type="text"
             placeholder="Search component, batch, defect..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#1B0C07] border border-[#3D180C] text-xs text-white placeholder-[#D1B8AE]/50 focus:outline-none focus:border-[#E3845A] font-mono"
+            className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#171210] border border-[#2D1F1A] text-xs text-white placeholder-[#C5B7AE]/50 focus:outline-none focus:border-[#F5A882] font-mono"
           />
         </div>
 
-        {/* Verdict Filters */}
-        <div className="flex items-center space-x-1 self-start sm:self-auto bg-[#1B0C07] p-1 rounded-xl border border-[#3D180C] text-xs">
+        {/* Verdict Filters with Pastel Accents */}
+        <div className="flex items-center space-x-1 self-start sm:self-auto bg-[#171210] p-1 rounded-xl border border-[#2D1F1A] text-xs">
           <button
             onClick={() => setFilterVerdict('')}
-            className={`px-3 py-1 rounded-lg font-medium transition-all ${
-              filterVerdict === '' ? 'bg-[#3D180C] text-white' : 'text-[#D1B8AE] hover:text-white'
+            data-cursor="pointer"
+            className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+              filterVerdict === '' ? 'bg-[#2D1F1A] text-[#FAF8F5]' : 'text-[#C5B7AE] hover:text-white'
             }`}
           >
             All
           </button>
           <button
             onClick={() => setFilterVerdict('PASS')}
-            className={`px-3 py-1 rounded-lg font-medium transition-all ${
-              filterVerdict === 'PASS' ? 'bg-emerald-600/30 text-emerald-400 font-bold' : 'text-[#D1B8AE] hover:text-white'
+            data-cursor="pointer"
+            className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+              filterVerdict === 'PASS' ? 'bg-[#A7F3D0]/20 text-[#A7F3D0] font-bold' : 'text-[#C5B7AE] hover:text-white'
             }`}
           >
             Pass
           </button>
           <button
             onClick={() => setFilterVerdict('REWORK')}
-            className={`px-3 py-1 rounded-lg font-medium transition-all ${
-              filterVerdict === 'REWORK' ? 'bg-[#E3845A]/30 text-[#E3845A] font-bold' : 'text-[#D1B8AE] hover:text-white'
+            data-cursor="pointer"
+            className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+              filterVerdict === 'REWORK' ? 'bg-[#FDE68A]/20 text-[#FDE68A] font-bold' : 'text-[#C5B7AE] hover:text-white'
             }`}
           >
             Rework
           </button>
           <button
             onClick={() => setFilterVerdict('SCRAP')}
-            className={`px-3 py-1 rounded-lg font-medium transition-all ${
-              filterVerdict === 'SCRAP' ? 'bg-red-600/30 text-red-400 font-bold' : 'text-[#D1B8AE] hover:text-white'
+            data-cursor="pointer"
+            className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+              filterVerdict === 'SCRAP' ? 'bg-[#FDA4AF]/20 text-[#FDA4AF] font-bold' : 'text-[#C5B7AE] hover:text-white'
             }`}
           >
             Scrap
@@ -161,10 +186,10 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-[#3D180C] bg-[#1B0C07] overflow-hidden shadow-xl">
+      <div className="rounded-2xl border border-[#2D1F1A] bg-[#171210] overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#120704] border-b border-[#3D180C] text-[#D1B8AE] font-mono">
+            <thead className="bg-[#0E0B0A] border-b border-[#2D1F1A] text-[#C5B7AE] font-mono">
               <tr>
                 <th className="py-3 px-4">TIMESTAMP</th>
                 <th className="py-3 px-4">BATCH ID</th>
@@ -176,28 +201,28 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
                 <th className="py-3 px-4 text-right">ACTION</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#3D180C]/60 text-slate-300">
+            <tbody className="divide-y divide-[#2D1F1A]/70 text-[#FAF8F5]">
               {filteredLogs.length > 0 ? (
                 filteredLogs.map((item) => (
-                  <tr key={item.id} className="hover:bg-[#2A130B]/40 transition-colors">
-                    <td className="py-3 px-4 font-mono text-[11px] text-[#D1B8AE]/80">
+                  <tr key={item.id} className="hover:bg-[#231A16]/50 transition-colors">
+                    <td className="py-3 px-4 font-mono text-[11px] text-[#C5B7AE]">
                       {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </td>
-                    <td className="py-3 px-4 font-mono text-[#E3845A] font-medium">
+                    <td className="py-3 px-4 font-mono text-[#F5A882] font-medium">
                       {item.batch_id}
                     </td>
                     <td className="py-3 px-4 font-semibold text-white">
                       {item.component_name}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded bg-[#120704] text-[10px] font-mono text-[#D1B8AE] border border-[#3D180C]">
+                      <span className="px-2 py-0.5 rounded bg-[#0E0B0A] text-[10px] font-mono text-[#C5B7AE] border border-[#2D1F1A]">
                         {item.user_email || item.inspector_id || 'System'}
                       </span>
                     </td>
                     <td className="py-3 px-4">
                       {getVerdictBadge(item.verdict)}
                     </td>
-                    <td className="py-3 px-4 text-[#D1B8AE] font-mono text-[11px]">
+                    <td className="py-3 px-4 text-[#C5B7AE] font-mono text-[11px]">
                       {item.defect_type}
                     </td>
                     <td className="py-3 px-4 font-mono font-bold text-white">
@@ -206,7 +231,8 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
                     <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => onSelectInspection && onSelectInspection(item)}
-                        className="px-2.5 py-1 rounded bg-[#3D180C] hover:bg-[#E3845A] hover:text-white text-[#FAF9F6] text-[11px] font-mono transition-colors cursor-pointer"
+                        data-cursor="pointer"
+                        className="px-2.5 py-1 rounded bg-[#2D1F1A] hover:bg-[#F5A882] hover:text-[#0E0B0A] text-[#FAF8F5] text-[11px] font-mono font-bold transition-colors cursor-pointer"
                       >
                         Inspect
                       </button>
@@ -215,8 +241,20 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="py-10 text-center text-[#D1B8AE]/60 font-mono">
-                    No inspection logs matching filter.
+                  <td colSpan="8" className="py-12 text-center text-[#C5B7AE] font-mono">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Lock className="w-8 h-8 text-[#F5A882]/60 mb-1" />
+                      <span className="font-bold text-[#FAF8F5] text-sm">
+                        {onlyMyLogs && currentUser
+                          ? `No private inspection logs for ${currentUser.email}`
+                          : 'No inspection records matching query.'}
+                      </span>
+                      <span className="text-xs text-[#C5B7AE]">
+                        {onlyMyLogs && currentUser
+                          ? 'Run an optical inspection in the Live Console to log your first verified record.'
+                          : 'Try adjusting your search query or verdict filters.'}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               )}

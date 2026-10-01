@@ -4,20 +4,31 @@
 
 :root {
   color-scheme: dark;
-  --bg-obsidian: #120704;
-  --bg-surface: #1B0C07;
-  --deep-shadow: #3D180C;
+  --bg-obsidian: #0E0B0A;
+  --bg-surface: #171210;
+  --bg-card: rgba(28, 22, 19, 0.7);
+  --deep-shadow: #2E1B14;
   --midtone: #A74A21;
-  --highlight-glow: #E3845A;
-  --accent-white: #FFFFFF;
-  --text-muted: #D1B8AE;
   
-  --safe: #34D399;
-  --warning: #E3845A;
-  --critical: #F43F5E;
+  /* Oryzo-Inspired Pastel Color Palette */
+  --pastel-peach: #F5A882;
+  --pastel-peach-soft: #FDC5A9;
+  --pastel-mint: #A7F3D0;
+  --pastel-mint-bright: #6EE7B7;
+  --pastel-lilac: #DDD6FE;
+  --pastel-lilac-soft: #C4B5FD;
+  --pastel-rose: #FDA4AF;
+  --pastel-amber: #FDE68A;
+  --pastel-cream: #FAF8F5;
+  --text-muted: #C5B7AE;
   
-  --warm-gradient: linear-gradient(135deg, #E3845A 0%, #A74A21 50%, #3D180C 100%);
-  --light-leak: radial-gradient(circle at 50% 20%, rgba(227, 132, 90, 0.18) 0%, rgba(167, 74, 33, 0.08) 45%, transparent 75%);
+  --safe: #A7F3D0;
+  --warning: #FDE68A;
+  --critical: #FDA4AF;
+  
+  --warm-gradient: linear-gradient(135deg, #F5A882 0%, #E07A5F 50%, #3D1F17 100%);
+  --pastel-gradient: linear-gradient(135deg, #FAF8F5 0%, #F5A882 45%, #C4B5FD 100%);
+  --light-leak: radial-gradient(circle at 50% 20%, rgba(245, 168, 130, 0.16) 0%, rgba(196, 181, 253, 0.08) 45%, transparent 75%);
 }
 
 body {
@@ -261,3 +272,117 @@ svg [data-ring] {
 .animate-laser-sweep {
   animation: laserSweep 3s ease-in-out infinite;
 }
+
+/* Real-time Dynamic Equalizer Bar Bouncing */
+@keyframes eqBounce {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+
+.animate-eq-1 { animation: eqBounce 0.8s ease-in-out infinite 0.1s; }
+.animate-eq-2 { animation: eqBounce 0.55s ease-in-out infinite 0.3s; }
+.animate-eq-3 { animation: eqBounce 0.95s ease-in-out infinite 0.18s; }
+.animate-eq-4 { animation: eqBounce 0.7s ease-in-out infinite 0.42s; }
+.animate-eq-5 { animation: eqBounce 0.85s ease-in-out infinite 0.12s; }
+.animate-eq-6 { animation: eqBounce 0.6s ease-in-out infinite 0.32s; }
+.animate-eq-7 { animation: eqBounce 0.9s ease-in-out infinite 0.22s; }
+.animate-eq-8 { animation: eqBounce 0.65s ease-in-out infinite 0.48s; }
+
+/* Radar beam rotation */
+@keyframes radarSweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-radar-beam {
+  animation: radarSweep 6s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Fast Laser Pass */
+@keyframes fastScanPass {
+  0% { top: 0%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.animate-fast-scan {
+  animation: fastScanPass 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Custom Cursor Rules (Active on Fine Pointer Devices) */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor {
+    cursor: none;
+  }
+  body.has-custom-cursor a,
+  body.has-custom-cursor button:not(.native-cursor),
+  body.has-custom-cursor [role="button"],
+  body.has-custom-cursor [data-cursor] {
+    cursor: none;
+  }
+  /* Preserve standard native cursors for inputs, textareas, selects and modals for maximum precision */
+  body.has-custom-cursor input,
+  body.has-custom-cursor textarea,
+  body.has-custom-cursor select,
+  body.has-custom-cursor [role="dialog"],
+  body.has-custom-cursor [role="dialog"] * {
+    cursor: auto !important;
+  }
+  body.has-custom-cursor input[type="text"],
+  body.has-custom-cursor input[type="email"],
+  body.has-custom-cursor input[type="password"],
+  body.has-custom-cursor textarea {
+    cursor: text !important;
+  }
+  body.has-custom-cursor button,
+  body.has-custom-cursor select,
+  body.has-custom-cursor [role="button"] {
+    cursor: pointer !important;
+  }
+}
+
+/* Smooth Scroll Reveal System */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delay helpers */
+.delay-100 { transition-delay: 100ms; }
+.delay-200 { transition-delay: 200ms; }
+.delay-300 { transition-delay: 300ms; }
+.delay-400 { transition-delay: 400ms; }
+
+/* Subtle Interactive Glow & Card Tilt */
+.interactive-glass-card {
+  background: rgba(27, 12, 7, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(61, 24, 12, 0.8);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.interactive-glass-card:hover {
+  border-color: rgba(227, 132, 90, 0.45);
+  box-shadow: 0 10px 30px -10px rgba(227, 132, 90, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Floating Ambient Aura */
+@keyframes floatAura {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(15px, -15px) scale(1.05); }
+}
+
+.animate-float-aura {
+  animation: floatAura 12s ease-in-out infinite;
+}
+

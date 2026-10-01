@@ -6,6 +6,7 @@ import AnalyticsDashboard from './components/AnalyticsDashboard.jsx';
 import AuditLog from './components/AuditLog.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import IsoCertificateModal from './components/IsoCertificateModal.jsx';
+import CustomCursor from './components/CustomCursor.jsx';
 import { getHealthStatus } from './services/api.js';
 
 export default function App() {
@@ -99,6 +100,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#120704] text-[#FAF9F6] flex flex-col font-sans selection:bg-[#E3845A] selection:text-[#120704]">
+      {/* High-Precision Interactive Optical Reticle Cursor */}
+      <CustomCursor />
       
       {/* Top Navigation */}
       <Navbar

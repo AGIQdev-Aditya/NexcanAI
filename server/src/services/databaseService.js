@@ -188,7 +188,7 @@ export async function getInspectionHistory({ limit = 50, verdict, category, user
       if (verdict) query = query.eq('verdict', verdict);
       if (category) query = query.eq('category', category);
       if (userEmail && userEmail !== 'all') {
-        query = query.or(`inspector_id.eq.${userEmail},inspector_id.eq.NEXCAN-CV-01`);
+        query = query.eq('inspector_id', userEmail);
       }
 
       const { data, error } = await query;
@@ -205,7 +205,8 @@ export async function getInspectionHistory({ limit = 50, verdict, category, user
   if (verdict) filtered = filtered.filter((i) => i.verdict === verdict);
   if (category) filtered = filtered.filter((i) => i.category === category);
   if (userEmail && userEmail !== 'all') {
-    filtered = filtered.filter((i) => i.inspector_id === userEmail || i.user_email === userEmail || i.inspector_id === 'NEXCAN-CV-01');
+    // Strictly isolate to the requesting user's private records
+    filtered = filtered.filter((i) => i.user_email === userEmail || i.inspector_id === userEmail);
   }
   return filtered.slice(0, limit);
 }
