@@ -14,10 +14,20 @@ export async function getHealthStatus() {
   return res.json();
 }
 
-/**
- * Run Gemini Multimodal Vision Defect Inspection
- */
-export async function inspectImage({ imageBase64, componentHint = '', category = 'General', mimeType = 'image/jpeg', userEmail, userId }) {
+export async function inspectImage({
+  imageBase64,
+  image,
+  componentHint = '',
+  component_name = '',
+  category = 'General',
+  mimeType = 'image/jpeg',
+  userEmail,
+  userId,
+  tolerance_limit_mm,
+} = {}) {
+  const payloadImage = imageBase64 || image;
+  const payloadHint = componentHint || component_name || 'General Industrial Component';
+
   const res = await fetch(`${API_BASE}/inspect`, {
     method: 'POST',
     headers: {
@@ -26,7 +36,17 @@ export async function inspectImage({ imageBase64, componentHint = '', category =
       ...(userEmail ? { 'x-user-email': userEmail } : {}),
       ...(userId ? { 'x-user-id': userId } : {}),
     },
-    body: JSON.stringify({ imageBase64, componentHint, category, mimeType, userEmail, userId }),
+    body: JSON.stringify({
+      imageBase64: payloadImage,
+      image: payloadImage,
+      componentHint: payloadHint,
+      component_name: payloadHint,
+      category,
+      mimeType,
+      userEmail,
+      userId,
+      tolerance_limit_mm,
+    }),
   });
 
   if (!res.ok) {

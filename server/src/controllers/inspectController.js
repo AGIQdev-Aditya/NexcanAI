@@ -4,15 +4,21 @@ import { saveInspectionRecord, uploadInspectionImage } from '../services/databas
 
 export async function handleInspect(req, res, next) {
   try {
-    let imageBase64 = req.body?.imageBase64;
+    let imageBase64 = req.body?.imageBase64 || req.body?.image || req.body?.imageSrc || req.body?.imageData;
     let mimeType = req.body?.mimeType || 'image/jpeg';
-    const componentHint = req.body?.componentHint || 'General Industrial Component';
+    const componentHint = req.body?.componentHint || req.body?.component_name || 'General Industrial Component';
     const category = req.body?.category || 'General';
 
     // If sent via multipart/form-data with file upload
     if (req.file) {
       imageBase64 = req.file.buffer.toString('base64');
       mimeType = req.file.mimetype || 'image/jpeg';
+    }
+
+    // Auto-detect and sanitize raw SVG strings if passed
+    if (typeof imageBase64 === 'string' && imageBase64.trim().startsWith('<svg')) {
+      imageBase64 = `data:image/svg+xml;base64,${Buffer.from(imageBase64).toString('base64')}`;
+      mimeType = 'image/svg+xml';
     }
 
     if (!imageBase64 || typeof imageBase64 !== 'string' || imageBase64.length < 10) {

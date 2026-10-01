@@ -134,11 +134,11 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
     }
 
     setIsScanning(true);
-    setErrorMsg(null);
-
     try {
       const result = await inspectImage({
+        imageBase64: selectedImage,
         image: selectedImage,
+        componentHint: componentHint,
         component_name: componentHint,
         category,
         tolerance_limit_mm: parseFloat(toleranceLimit),
