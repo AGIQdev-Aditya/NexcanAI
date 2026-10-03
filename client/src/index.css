@@ -315,36 +315,21 @@ svg [data-ring] {
   animation: fastScanPass 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-/* Custom Cursor Rules (Active on Fine Pointer Devices) */
-@media (hover: hover) and (pointer: fine) {
-  body.has-custom-cursor {
-    cursor: none;
-  }
-  body.has-custom-cursor a,
-  body.has-custom-cursor button:not(.native-cursor),
-  body.has-custom-cursor [role="button"],
-  body.has-custom-cursor [data-cursor] {
-    cursor: none;
-  }
-  /* Preserve standard native cursors for inputs, textareas, selects and modals for maximum precision */
-  body.has-custom-cursor input,
-  body.has-custom-cursor textarea,
-  body.has-custom-cursor select,
-  body.has-custom-cursor [role="dialog"],
-  body.has-custom-cursor [role="dialog"] * {
-    cursor: auto !important;
-  }
-  body.has-custom-cursor input[type="text"],
-  body.has-custom-cursor input[type="email"],
-  body.has-custom-cursor input[type="password"],
-  body.has-custom-cursor textarea {
-    cursor: text !important;
-  }
-  body.has-custom-cursor button,
-  body.has-custom-cursor select,
-  body.has-custom-cursor [role="button"] {
-    cursor: pointer !important;
-  }
+/* Custom Cursor Global Rules */
+body.has-custom-cursor,
+body.has-custom-cursor a,
+body.has-custom-cursor button,
+body.has-custom-cursor [role="button"],
+body.has-custom-cursor [data-cursor],
+body.has-custom-cursor .cursor-pointer {
+  cursor: none !important;
+}
+
+/* Preserve standard native cursors for inputs, textareas, selects */
+body.has-custom-cursor input,
+body.has-custom-cursor textarea,
+body.has-custom-cursor select {
+  cursor: text !important;
 }
 
 /* Smooth Scroll Reveal System */
@@ -389,4 +374,83 @@ svg [data-ring] {
 .animate-float-aura {
   animation: floatAura 12s ease-in-out infinite;
 }
+
+/* Serene Precision Laser Scanline for Defect Canvas */
+@keyframes calmLaserScan {
+  0% {
+    top: 0%;
+    opacity: 0.7;
+  }
+  50% {
+    top: 96%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.7;
+  }
+}
+
+.animate-calm-laser {
+  animation: calmLaserScan 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Apple-style clean hidden scrollbars */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animated Shimmer Headline */
+@keyframes shimmerText {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer-headline {
+  background: linear-gradient(90deg, #1C1815 0%, #C9B59C 30%, #B8A389 50%, #1C1815 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 8s ease-in-out infinite;
+}
+
+/* Magic UI Rotating Shimmer Button Halo */
+@keyframes borderRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-border-spin {
+  animation: borderRotate 4s linear infinite;
+}
+
+/* Ambient Radial Pulse for Hero Background */
+@keyframes ambientDrift {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.22;
+  }
+  50% {
+    transform: translate(-48%, -52%) scale(1.18);
+    opacity: 0.42;
+  }
+}
+
+.animate-ambient-drift {
+  animation: ambientDrift 8s ease-in-out infinite;
+}
+
+/* Subtle Glowing Animated Grid Mesh */
+.animated-grid-mesh {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(201, 181, 156, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(201, 181, 156, 0.14) 1px, transparent 1px);
+}
+
+
 

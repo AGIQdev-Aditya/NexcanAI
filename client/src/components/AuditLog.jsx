@@ -7,8 +7,8 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
   const [loading, setLoading] = useState(true);
   const [filterVerdict, setFilterVerdict] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  // Strictly default to viewing private user logs if an operator is logged in
-  const [onlyMyLogs, setOnlyMyLogs] = useState(() => Boolean(currentUser));
+  // Default to showing all verified plant logs so visitors and evaluators see the full track record
+  const [onlyMyLogs, setOnlyMyLogs] = useState(false);
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -26,12 +26,6 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (currentUser) {
-      setOnlyMyLogs(true);
-    }
-  }, [currentUser]);
 
   useEffect(() => {
     fetchLogs();
@@ -132,16 +126,21 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-        {/* Search */}
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-[#6B5E55] absolute left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Search component, batch, defect..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7] text-xs text-[#1C1815] placeholder-[#6B5E55]/60 focus:outline-none focus:border-[#C9B59C] font-mono shadow-sm"
-          />
+        {/* Search & Count */}
+        <div className="flex items-center space-x-2.5 w-full sm:w-auto">
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-[#6B5E55] absolute left-3 top-2.5" />
+            <input
+              type="text"
+              placeholder="Search component, batch, defect..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#FFFFFF] border border-[#D9CFC7] text-xs text-[#1C1815] placeholder-[#6B5E55]/60 focus:outline-none focus:ring-2 focus:ring-[#C9B59C]/40 focus:border-[#C9B59C] font-mono shadow-2xs transition-all"
+            />
+          </div>
+          <span className="text-[11px] font-mono text-[#6B5E55] bg-[#EFE9E3] border border-[#D9CFC7] px-3 py-2 rounded-xl whitespace-nowrap hidden md:inline">
+            <strong className="text-[#1C1815]">{filteredLogs.length}</strong> Records
+          </span>
         </div>
 
         {/* Verdict Filters */}
@@ -186,55 +185,65 @@ export default function AuditLog({ onSelectInspection, currentUser }) {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-[#D9CFC7] bg-[#EFE9E3] overflow-hidden shadow-sm">
+      <div className="rounded-2xl border border-[#D9CFC7] bg-[#EFE9E3] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-[#EFE9E3] border-b border-[#D9CFC7] text-[#6B5E55] font-mono">
               <tr>
-                <th className="py-3 px-4">TIMESTAMP</th>
-                <th className="py-3 px-4">BATCH ID</th>
-                <th className="py-3 px-4">COMPONENT</th>
-                <th className="py-3 px-4">OPERATOR</th>
-                <th className="py-3 px-4">VERDICT</th>
-                <th className="py-3 px-4">DEFECT TYPE</th>
-                <th className="py-3 px-4">CONFIDENCE</th>
-                <th className="py-3 px-4 text-right">ACTION</th>
+                <th className="py-3.5 px-4 font-semibold">DATE & TIME</th>
+                <th className="py-3.5 px-4 font-semibold">BATCH ID</th>
+                <th className="py-3.5 px-4 font-semibold">COMPONENT</th>
+                <th className="py-3.5 px-4 font-semibold">OPERATOR</th>
+                <th className="py-3.5 px-4 font-semibold">VERDICT</th>
+                <th className="py-3.5 px-4 font-semibold">DEFECT ANOMALY</th>
+                <th className="py-3.5 px-4 font-semibold">CONFIDENCE</th>
+                <th className="py-3.5 px-4 text-right font-semibold">ACTION</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#D9CFC7] text-[#1C1815] bg-[#F9F8F6]">
+            <tbody className="divide-y divide-[#D9CFC7] text-[#1C1815] bg-[#FFFFFF]">
               {filteredLogs.length > 0 ? (
                 filteredLogs.map((item) => (
-                  <tr key={item.id} className="hover:bg-[#EFE9E3]/70 transition-colors">
-                    <td className="py-3 px-4 font-mono text-[11px] text-[#6B5E55]">
-                      {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  <tr key={item.id} className="hover:bg-[#F9F8F6] transition-colors">
+                    <td className="py-3.5 px-4">
+                      <div className="font-mono text-xs font-semibold text-[#1C1815]">
+                        {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                      </div>
+                      <div className="font-mono text-[10px] text-[#6B5E55]">
+                        {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
                     </td>
-                    <td className="py-3 px-4 font-mono text-[#8C7D73] font-medium">
+                    <td className="py-3.5 px-4 font-mono text-[#8C7D73] font-medium">
                       {item.batch_id}
                     </td>
-                    <td className="py-3 px-4 font-semibold text-[#1C1815]">
-                      {item.component_name}
+                    <td className="py-3.5 px-4">
+                      <div className="font-semibold text-xs text-[#1C1815]">
+                        {item.component_name}
+                      </div>
+                      <div className="text-[10px] text-[#8C7D73] font-mono">
+                        {item.category || 'Standard AOI'}
+                      </div>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded bg-[#EFE9E3] text-[10px] font-mono text-[#6B5E55] border border-[#D9CFC7]">
+                    <td className="py-3.5 px-4">
+                      <span className="px-2.5 py-1 rounded-md bg-[#F9F8F6] text-[10px] font-mono text-[#6B5E55] border border-[#D9CFC7] inline-block max-w-[140px] truncate">
                         {item.user_email || item.inspector_id || 'System'}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3.5 px-4">
                       {getVerdictBadge(item.verdict)}
                     </td>
-                    <td className="py-3 px-4 text-[#6B5E55] font-mono text-[11px]">
-                      {item.defect_type}
+                    <td className="py-3.5 px-4 text-[#6B5E55] font-mono text-[11px]">
+                      {item.defect_type || 'None'}
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-[#1C1815]">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[#1C1815]">
                       {item.confidence}%
                     </td>
-                    <td className="py-3 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={() => onSelectInspection && onSelectInspection(item)}
                         data-cursor="pointer"
-                        className="px-2.5 py-1 rounded bg-[#EFE9E3] hover:bg-[#C9B59C] text-[#1C1815] border border-[#D9CFC7] text-[11px] font-mono font-bold transition-colors cursor-pointer shadow-sm"
+                        className="px-3 py-1.5 rounded-lg bg-[#F9F8F6] hover:bg-[#C9B59C] text-[#1C1815] border border-[#D9CFC7] hover:border-[#C9B59C] text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs hover:shadow-xs"
                       >
-                        Inspect
+                        Inspect →
                       </button>
                     </td>
                   </tr>

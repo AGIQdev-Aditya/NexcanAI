@@ -116,25 +116,34 @@ export default function Navbar({
         {/* Right Section: System Indicator & User Auth */}
         <div className="flex items-center space-x-2.5 text-xs shrink-0">
           
-          {/* Active Live Indicator */}
-          <div className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-[#EFE9E3] border border-[#D9CFC7] text-[#6B5E55]">
-            <Cpu className="w-3 h-3 text-[#16A34A]" />
-            <span className="font-mono text-[10px] font-semibold text-[#1C1815]">Gemini 3.8</span>
+          {/* Serene & Reassuring System Status Pill */}
+          <div className="hidden md:flex items-center space-x-2 px-3 py-1 rounded-full bg-[#EFE9E3] border border-[#D9CFC7] shadow-xs text-[#1C1815]">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#16A34A] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#16A34A]"></span>
+            </span>
+            <span className="font-mono text-[11px] font-semibold tracking-wide text-[#1C1815]">
+              SYSTEM ONLINE
+            </span>
+            <span className="text-[#D9CFC7]">•</span>
+            <span className="text-[10px] font-mono text-[#6B5E55] tracking-tight">
+              ISO-9001 ACTIVE
+            </span>
           </div>
 
           {/* User Profile or Sign In / Demo */}
           {currentUser ? (
-            <div className="flex items-center space-x-2 bg-[#EFE9E3] border border-[#D9CFC7] py-1 px-2.5 rounded-xl shadow-sm">
-              <div className="w-6 h-6 rounded-lg bg-[#C9B59C] flex items-center justify-center text-[#1C1815] font-bold text-xs font-mono shadow-sm">
+            <div className="flex items-center space-x-2.5 bg-[#EFE9E3] border border-[#D9CFC7] py-1 px-3 rounded-xl shadow-xs">
+              <div className="w-6 h-6 rounded-lg bg-[#C9B59C] flex items-center justify-center text-[#1C1815] font-bold text-xs font-mono shadow-xs">
                 {displayName.charAt(0).toUpperCase()}
               </div>
               <div className="hidden sm:block text-left">
-                <div className="text-[11px] font-bold text-[#1C1815] leading-tight max-w-[110px] truncate">
+                <div className="text-[11px] font-bold text-[#1C1815] leading-tight max-w-[120px] truncate">
                   {displayName}
                 </div>
-                <div className="text-[9px] text-[#16A34A] font-mono leading-none flex items-center space-x-1">
-                  <Lock className="w-2.5 h-2.5 inline" />
-                  <span>Private Vault</span>
+                <div className="text-[9px] text-[#16A34A] font-mono leading-none flex items-center space-x-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] inline-block"></span>
+                  <span>Verified Session</span>
                 </div>
               </div>
               <button

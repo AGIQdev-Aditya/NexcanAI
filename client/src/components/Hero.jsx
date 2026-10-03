@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Spotlight from './Spotlight.jsx';
+import OryzoShowcase from './OryzoShowcase.jsx';
 import {
   Zap,
   Layers,
@@ -226,11 +228,8 @@ const TEAM_MEMBERS = [
 export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
   const [activeDeckIndex, setActiveDeckIndex] = useState(2); // Middle card
   const [deckProgress, setDeckProgress] = useState(0.5); // 0 to 1
-  const [isFlipped, setIsFlipped] = useState(false); // Dual-state flip
-  const [scrambleText, setScrambleText] = useState('RAW_TELECENTRIC_STREAM_01');
   const [tilt, setTilt] = useState({ x: 0, y: 0 }); // 3D mouse parallax
   const [zoomLevel, setZoomLevel] = useState(40); // 10x, 40x, 100x zoom loupe
-  const [selectedTol, setSelectedTol] = useState('0.05'); // Tolerance preset
   const [activePresetIndex, setActivePresetIndex] = useState(0); // Live camera preset
   const [liveWaferCount, setLiveWaferCount] = useState(148924); // Ticking factory counter
   const [opticalMode, setOpticalMode] = useState('segmented'); // 'segmented' | 'raw'
@@ -247,12 +246,7 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
     }, 1300);
   };
 
-  const deckSectionRef = useRef(null);
-  const targetProgress = useRef(0.5);
-  const currentProgress = useRef(0.5);
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const startProgress = useRef(0.5);
+
 
   // Live Factory Ticking Counter
   useEffect(() => {
@@ -281,64 +275,72 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
     return () => observer.disconnect();
   }, []);
 
-  // Scroll-Linked Horizontal Motion for Defect Deck
+  // Apple / Aceternity-Style Carousel Controller
+  const carouselRef = useRef(null);
+  const isMouseDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftPos = useRef(0);
+
+  const scrollStep = (direction) => {
+    if (!carouselRef.current) return;
+    const cardWidth = 340;
+    carouselRef.current.scrollBy({
+      left: direction * cardWidth,
+      behavior: 'smooth'
+    });
+  };
+
+  const scrollToCard = (index) => {
+    if (!carouselRef.current) return;
+    const cardWidth = 340;
+    carouselRef.current.scrollTo({
+      left: index * cardWidth,
+      behavior: 'smooth'
+    });
+    setActiveDeckIndex(index);
+  };
+
+  const handleCarouselScroll = () => {
+    if (!carouselRef.current) return;
+    const cardWidth = 340;
+    const newIndex = Math.round(carouselRef.current.scrollLeft / cardWidth);
+    const clamped = Math.max(0, Math.min(DEFECT_DECK.length - 1, newIndex));
+    setActiveDeckIndex(clamped);
+  };
+
+  // Native non-passive wheel listener: maps vertical mouse wheel to horizontal card scroll
   useEffect(() => {
-    let animId;
+    const el = carouselRef.current;
+    if (!el) return;
 
-    const handleWindowScroll = () => {
-      if (!deckSectionRef.current) return;
-      const rect = deckSectionRef.current.getBoundingClientRect();
-      const vh = window.innerHeight;
-      
-      const totalDistance = vh + rect.height;
-      const rawProgress = (vh - rect.top) / totalDistance;
-      const clamped = Math.max(0, Math.min(1, rawProgress));
-      
-      targetProgress.current = clamped;
+    const onWheel = (e) => {
+      // If user is scrolling vertical mouse wheel over the cards:
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        el.scrollLeft += e.deltaY * 1.5;
+      }
     };
 
-    const updateLoop = () => {
-      currentProgress.current += (targetProgress.current - currentProgress.current) * 0.08;
-      setDeckProgress(currentProgress.current);
-
-      const floatIndex = currentProgress.current * (DEFECT_DECK.length - 1);
-      const roundedIndex = Math.max(0, Math.min(DEFECT_DECK.length - 1, Math.round(floatIndex)));
-      setActiveDeckIndex(roundedIndex);
-
-      animId = requestAnimationFrame(updateLoop);
-    };
-
-    window.addEventListener('scroll', handleWindowScroll, { passive: true });
-    handleWindowScroll();
-    animId = requestAnimationFrame(updateLoop);
-
-    return () => {
-      window.removeEventListener('scroll', handleWindowScroll);
-      cancelAnimationFrame(animId);
-    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
-  // Drag & Wheel interactions
-  const handleDeckWheel = (e) => {
-    const delta = (e.deltaY || e.deltaX) * 0.0006;
-    targetProgress.current = Math.max(0, Math.min(1, targetProgress.current + delta));
+  const handleMouseDown = (e) => {
+    isMouseDown.current = true;
+    startX.current = e.pageX - carouselRef.current.offsetLeft;
+    scrollLeftPos.current = carouselRef.current.scrollLeft;
   };
 
-  const handlePointerDown = (e) => {
-    isDragging.current = true;
-    startX.current = e.clientX;
-    startProgress.current = targetProgress.current;
+  const handleMouseMove = (e) => {
+    if (!isMouseDown.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.6;
+    carouselRef.current.scrollLeft = scrollLeftPos.current - walk;
   };
 
-  const handlePointerMove = (e) => {
-    if (!isDragging.current) return;
-    const dx = e.clientX - startX.current;
-    const delta = -dx * 0.0018;
-    targetProgress.current = Math.max(0, Math.min(1, startProgress.current + delta));
-  };
-
-  const handlePointerUp = () => {
-    isDragging.current = false;
+  const handleMouseUp = () => {
+    isMouseDown.current = false;
   };
 
   // Parallax Tilt for Interactive Wafer Scanner Preview
@@ -353,72 +355,8 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
     setTilt({ x: 0, y: 0 });
   };
 
-  // Flip Card Cipher Scramble Animation
-  const handleFlipCard = () => {
-    const nextFlipped = !isFlipped;
-    setIsFlipped(nextFlipped);
-
-    const chars = '0123456789ABCDEF#%&*<>[]{}';
-    const targetText = nextFlipped
-      ? 'GEMINI_3.8_TENSOR: [340, 420, 480, 560]'
-      : 'RAW_TELECENTRIC_STREAM_01';
-    
-    let step = 0;
-    const interval = setInterval(() => {
-      setScrambleText(() => {
-        return targetText
-          .split('')
-          .map((ch, idx) => {
-            if (idx < step) return ch;
-            if (ch === ' ') return ' ';
-            return chars[Math.floor(Math.random() * chars.length)];
-          })
-          .join('');
-      });
-      step += 2;
-      if (step > targetText.length) {
-        clearInterval(interval);
-        setScrambleText(targetText);
-      }
-    }, 25);
-  };
-
   const activeDefect = DEFECT_DECK[activeDeckIndex];
   const activeScannerPreset = SCANNER_PRESETS[activePresetIndex];
-
-  // Tolerance Presets
-  const tolPresets = {
-    '0.05': {
-      title: 'Ultra-Precision Class 3',
-      tol: '±0.05 mm',
-      target: 'Aerospace NDT & Medical Implants',
-      f1Score: '99.8%',
-      fpy: '94.2%',
-      nyquist: '0.025 mm / pixel',
-      gradient: 'from-[#D9CFC7] via-[#C9B59C] to-[#B8A389]',
-      barWidth: '98%',
-    },
-    '0.10': {
-      title: 'Balanced Production Mode',
-      tol: '±0.10 mm',
-      target: 'High-Volume SMT Electronics',
-      f1Score: '99.4%',
-      fpy: '98.6%',
-      nyquist: '0.050 mm / pixel',
-      gradient: 'from-[#D9CFC7] to-[#C9B59C]',
-      barWidth: '76%',
-    },
-    '0.25': {
-      title: 'High-Throughput Casting',
-      tol: '±0.25 mm',
-      target: 'CNC Heavy Machined Enclosures',
-      f1Score: '98.9%',
-      fpy: '99.5%',
-      nyquist: '0.125 mm / pixel',
-      gradient: 'from-[#C9B59C] to-[#8C7D73]',
-      barWidth: '45%',
-    },
-  }[selectedTol];
 
   return (
     <div className="bg-[#F9F8F6] text-[#1C1815] selection:bg-[#C9B59C] selection:text-[#1C1815] overflow-hidden">
@@ -447,14 +385,18 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
       {/* ─────────────────────────────────────────────────────────────
           2. HERO SECTION: LIVE INTERACTIVE SCANNER & METRICS
           ───────────────────────────────────────────────────────────── */}
-      <section className="relative pt-14 pb-20 border-b border-[#D9CFC7] bg-[#F9F8F6] radar-grid overflow-hidden">
-        {/* Soft Ambient Light Glow */}
+      <section className="relative pt-16 pb-24 border-b border-[#D9CFC7] bg-[#F9F8F6] animated-grid-mesh overflow-hidden">
+        {/* Aceternity UI Warm Ambient Spotlight */}
+        <Spotlight className="-top-20 left-10 md:left-60 md:-top-16 opacity-75" fill="#C9B59C" />
+
+        {/* Dynamic Animated Ambient Light Orbs */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[420px] bg-gradient-to-tr from-[#C9B59C]/25 via-[#D9CFC7]/20 to-transparent blur-[130px] pointer-events-none rounded-full animate-ambient-drift" />
+        <div className="absolute top-1/2 right-12 w-[380px] h-[380px] bg-[#16A34A]/10 blur-[110px] pointer-events-none rounded-full animate-float-aura" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[520px] diffused-light-leak pointer-events-none" />
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[650px] h-[320px] bg-[#C9B59C]/15 blur-[130px] pointer-events-none rounded-full animate-float-aura" />
 
         {/* Ambient Subtle Watermark */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none z-0">
-          <span className="text-[14vw] font-black uppercase tracking-tight text-[#D9CFC7]/30 leading-none whitespace-nowrap block">
+          <span className="text-[14vw] font-black uppercase tracking-tight text-[#D9CFC7]/25 leading-none whitespace-nowrap block">
             NEXCAN AI
           </span>
         </div>
@@ -462,7 +404,7 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           
           {/* Live Factory Ticking Counter Pill */}
-          <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-[#EFE9E3] border border-[#D9CFC7] text-xs font-mono mb-5 shadow-sm">
+          <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-[#EFE9E3] border border-[#D9CFC7] text-xs font-mono mb-5 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-ping" />
             <span className="text-[#6B5E55]">LIVE LINE TELEMETRY:</span>
             <span className="text-[#1C1815] font-bold">{liveWaferCount.toLocaleString()}</span>
@@ -471,10 +413,10 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
             <span className="text-[#1C1815] font-bold">99.4% FPY</span>
           </div>
 
-          {/* Staged Rising Title */}
+          {/* Staged Rising Title with Shimmer Animation */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#1C1815] tracking-tight leading-[1.15] max-w-4xl mx-auto">
             Autonomous Quality Assurance &amp;{' '}
-            <span className="warm-gradient-text">
+            <span className="animate-shimmer-headline inline-block">
               Defect Intelligence
             </span>
           </h1>
@@ -487,16 +429,17 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
             <code className="text-[#DC2626] font-bold bg-[#DC2626]/10 px-1.5 py-0.5 rounded border border-[#DC2626]/30">SCRAP</code>), and verified ISO-9001 compliance audit trails.
           </p>
 
-          {/* Primary Action Buttons */}
+          {/* Primary Action Buttons with Magic UI Light Sweep */}
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3.5">
             <button
               onClick={onLaunchApp}
               data-cursor="pointer"
-              className="px-6 py-3.5 rounded-xl bg-[#C9B59C] hover:bg-[#B8A389] text-[#1C1815] font-bold text-xs tracking-wider uppercase shadow-md flex items-center space-x-2 transition-all cursor-pointer hover:scale-[1.03] active:scale-[0.98]"
+              className="relative group px-7 py-3.5 rounded-2xl bg-[#C9B59C] hover:bg-[#B8A389] text-[#1C1815] font-extrabold text-xs tracking-wider uppercase shadow-[0_8px_30px_rgba(201,181,156,0.5)] flex items-center space-x-2 transition-all cursor-pointer hover:scale-[1.04] active:scale-[0.98] overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
               <Zap className="w-4 h-4 text-[#1C1815]" />
               <span>Launch Live Inspector</span>
-              <ArrowRight className="w-4 h-4 ml-1" />
+              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
             </button>
 
             <button
@@ -835,203 +778,103 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          4. AI SENSITIVITY & TOLERANCE CALIBRATION SLIDER
+          4. APPLE / ACETERNITY-STYLE DEFECT SAMPLE CAROUSEL
           ───────────────────────────────────────────────────────────── */}
-      <section className="py-20 border-b border-[#D9CFC7] bg-[#F9F8F6] relative overflow-hidden">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        className="py-24 border-b border-[#D9CFC7] bg-[#EFE9E3] relative select-none overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 scroll-reveal">
             <div>
-              <div className="sub1 text-[#8C7D73] mb-1.5 flex items-center space-x-2">
-                <Sliders className="w-4 h-4 text-[#C9B59C]" />
-                <span>DYNAMIC CALIBRATION PROTOCOL // IPC-A-610</span>
+              <div className="sub1 text-[#8C7D73] mb-2 flex items-center space-x-2">
+                <Layers className="w-4 h-4 text-[#C9B59C]" />
+                <span>TELECENTRIC DEFECT BENCHMARKS</span>
               </div>
               <h2 className="text-2xl sm:text-4xl font-extrabold text-[#1C1815] tracking-tight uppercase">
-                AI Tolerance &amp; Sensitivity Matrix
+                Interactive Defect Sample Gallery
               </h2>
-            </div>
-            <p className="text-xs text-[#6B5E55] max-w-xs md:text-right">
-              Calibrate neural classification strictness according to industrial compliance standards.
-            </p>
-          </div>
-
-          <div className="o-dashline mb-8" />
-
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            
-            {/* Left: 3 Selectable Precision Tiers (5 cols) */}
-            <div className="md:col-span-5 space-y-3 scroll-reveal delay-100">
-              {[
-                { id: '0.05', label: 'Ultra-Precision Class 3', tol: 'T = 0.05 mm', desc: 'Zero defect tolerance. Rejects sub-millimeter solder voids and micro-cracks.' },
-                { id: '0.10', label: 'Balanced Production Mode', tol: 'T = 0.10 mm', desc: 'Standard for consumer electronics and automotive PCB assemblies.' },
-                { id: '0.25', label: 'High-Throughput Casting', tol: 'T = 0.25 mm', desc: 'Permissive baseline for raw structural castings and high-speed CNC deburring.' }
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  data-cursor="pointer"
-                  onClick={() => setSelectedTol(item.id)}
-                  className={`w-full p-4 rounded-2xl border text-left transition-all cursor-pointer shadow-sm ${
-                    selectedTol === item.id
-                      ? 'border-[#C9B59C] bg-[#EFE9E3] ring-1 ring-[#C9B59C]'
-                      : 'border-[#D9CFC7] bg-[#F9F8F6] hover:border-[#C9B59C]/50 hover:bg-[#EFE9E3]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-sm text-[#1C1815]">{item.label}</span>
-                    <span className="font-mono text-xs text-[#1C1815] font-bold bg-[#C9B59C]/20 px-2 py-0.5 rounded border border-[#C9B59C]/40">
-                      {item.tol}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#6B5E55] leading-relaxed">{item.desc}</p>
-                </button>
-              ))}
+              <p className="text-xs sm:text-sm text-[#6B5E55] mt-1 max-w-xl">
+                Swipe smoothly on your trackpad, drag with mouse, or use arrow keys to inspect pre-calibrated industrial defect models.
+              </p>
             </div>
 
-            {/* Right: Telemetry Readout (7 cols) */}
-            <div className="md:col-span-7 p-6 rounded-3xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-sm scroll-reveal delay-200">
-              <div className="flex items-center justify-between pb-4 border-b border-[#D9CFC7]">
-                <div>
-                  <span className="sub1 text-[#16A34A]">ACTIVE PRESET</span>
-                  <h3 className="text-lg font-bold text-[#1C1815] mt-0.5">{tolPresets.title}</h3>
-                </div>
-                <div className="text-right font-mono">
-                  <span className="text-[10px] text-[#6B5E55] block">THRESHOLD</span>
-                  <span className="text-lg font-extrabold text-[#1C1815]">{tolPresets.tol}</span>
-                </div>
-              </div>
-
-              {/* Sensitivity Gauge Bar */}
-              <div className="my-5">
-                <div className="flex justify-between text-[11px] font-mono text-[#6B5E55] mb-2">
-                  <span>SENSITIVITY MATRIX</span>
-                  <span>F1 SCORE: <strong className="text-[#1C1815]">{tolPresets.f1Score}</strong></span>
-                </div>
-                <div className="w-full bg-[#F9F8F6] h-3 rounded-full overflow-hidden border border-[#D9CFC7] p-[1px]">
-                  <div
-                    className={`h-full rounded-full bg-gradient-to-r ${tolPresets.gradient} transition-all duration-500`}
-                    style={{ width: tolPresets.barWidth }}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#D9CFC7] font-mono text-[11px]">
-                <div className="p-2.5 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7]">
-                  <div className="text-[#6B5E55] text-[10px]">NYQUIST LIMIT</div>
-                  <div className="text-[#1C1815] font-bold mt-0.5">{tolPresets.nyquist}</div>
-                </div>
-                <div className="p-2.5 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7]">
-                  <div className="text-[#6B5E55] text-[10px]">APPLICATION DOMAIN</div>
-                  <div className="text-[#16A34A] font-bold mt-0.5 truncate">{tolPresets.target}</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* ─────────────────────────────────────────────────────────────
-          5. SCROLL-DRIVEN 3D DEFECT GALLERY (Fluid Horizontal Motion)
-          ───────────────────────────────────────────────────────────── */}
-      <section
-        ref={deckSectionRef}
-        onWheel={handleDeckWheel}
-        className="py-20 border-b border-[#D9CFC7] bg-[#EFE9E3] relative select-none overflow-hidden"
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-3xl mx-auto mb-8 scroll-reveal">
-            <div className="sub1 text-[#8C7D73] mb-2 flex items-center justify-center space-x-2">
-              <Layers className="w-4 h-4 text-[#C9B59C]" />
-              <span>SUB-MILLIMETER INSPECTION DECK</span>
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#1C1815] tracking-tight uppercase">
-              Interactive Defect Sample Gallery
-            </h2>
-            <p className="text-xs sm:text-sm text-[#6B5E55] mt-2 max-w-xl mx-auto">
-              Scroll down to glide the cards sideways. Observe the sub-millimeter bounding box coordinates and remediation protocols.
-            </p>
-
-            {/* Scroll Navigation Cue */}
-            <div className="mt-4 inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-[#F9F8F6] border border-[#D9CFC7] text-[11px] font-mono text-[#1C1815] shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-[#C9B59C] animate-pulse" />
-              <span>SCROLL DOWN</span>
-              <span className="text-[#C9B59C]">⟶</span>
-              <span className="text-[#1C1815] font-bold">GLIDES HORIZONTALLY</span>
-              <span className="text-[#D9CFC7]">|</span>
-              <span className="text-[#6B5E55]">DRAG OR WHEEL INTERACTIVE</span>
+            {/* Carousel Navigation Buttons */}
+            <div className="flex items-center space-x-3 self-start md:self-auto">
+              <button
+                onClick={() => scrollStep(-1)}
+                disabled={activeDeckIndex === 0}
+                aria-label="Previous Slide"
+                className="p-3 rounded-full bg-[#FFFFFF] hover:bg-[#F9F8F6] text-[#1C1815] border border-[#D9CFC7] shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => scrollStep(1)}
+                disabled={activeDeckIndex === DEFECT_DECK.length - 1}
+                aria-label="Next Slide"
+                className="p-3 rounded-full bg-[#FFFFFF] hover:bg-[#F9F8F6] text-[#1C1815] border border-[#D9CFC7] shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
           </div>
 
-          {/* 3D SCROLL-DRIVEN FANNED STAGE */}
-          <div
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-            data-cursor="inspect"
-            className="relative w-full max-w-5xl mx-auto min-h-[360px] sm:min-h-[400px] flex items-center justify-center py-6 cursor-grab active:cursor-grabbing [perspective:1200px]"
-          >
-            {/* Center Spotlight Ambience */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#C9B59C]/20 rounded-full blur-[90px] pointer-events-none" />
+          {/* Smooth Snap Carousel Viewport */}
+          <div className="relative">
+            {/* Ambient Background Glow */}
+            <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-96 h-96 bg-[#C9B59C]/15 rounded-full blur-[100px] pointer-events-none" />
 
-            {/* Render 5 Cards whose positions glide smoothly based on deckProgress */}
-            <div className="relative w-full h-[320px] flex items-center justify-center">
+            <div
+              ref={carouselRef}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onScroll={handleCarouselScroll}
+              className="flex space-x-6 overflow-x-auto scroll-smooth snap-x snap-mandatory py-6 px-1 hide-scrollbar cursor-grab active:cursor-grabbing select-none"
+            >
               {DEFECT_DECK.map((defect, idx) => {
-                const floatIndex = deckProgress * (DEFECT_DECK.length - 1);
-                const offset = (floatIndex - idx);
-                const cardX = offset * 135;
-                const distFromCenter = Math.abs(cardX);
                 const isSelected = idx === activeDeckIndex;
-
-                // 3D Transforms
-                const rot = Math.max(-20, Math.min(20, cardX * 0.04));
-                const ty = Math.min(30, distFromCenter * 0.04);
-                const zIndex = Math.max(1, 30 - Math.round(distFromCenter * 0.04));
-                const scale = Math.max(0.85, 1.05 - distFromCenter * 0.0006);
-                const opacity = Math.max(0.4, 1 - distFromCenter * 0.001);
-
                 return (
                   <div
                     key={defect.id}
-                    onClick={() => {
-                      targetProgress.current = idx / (DEFECT_DECK.length - 1);
-                    }}
-                    style={{
-                      transform: `translateX(${cardX}px) translateY(${ty}px) rotateZ(${rot}deg) scale(${scale})`,
-                      zIndex,
-                      opacity,
-                    }}
-                    className={`absolute w-72 sm:w-80 h-[300px] rounded-3xl p-5 cursor-pointer transition-all duration-100 ease-out select-none flex flex-col justify-between shadow-lg ${
+                    onClick={() => scrollToCard(idx)}
+                    className={`snap-center shrink-0 w-[300px] sm:w-[350px] rounded-3xl p-6 transition-all duration-300 cursor-pointer flex flex-col justify-between border relative overflow-hidden group ${
                       isSelected
-                        ? 'bg-[#F9F8F6] border-2 border-[#C9B59C] shadow-[0_10px_35px_rgba(201,181,156,0.4)]'
-                        : 'bg-[#F9F8F6] border border-[#D9CFC7] hover:border-[#C9B59C]/50'
+                        ? 'bg-[#FFFFFF] border-[#C9B59C] shadow-[0_16px_45px_rgba(201,181,156,0.35)] ring-2 ring-[#C9B59C]/40 scale-100'
+                        : 'bg-[#F9F8F6] border-[#D9CFC7] hover:border-[#C9B59C]/60 hover:bg-[#FFFFFF] opacity-85 hover:opacity-100 shadow-sm'
                     }`}
                   >
+                    {/* Magic UI Border Beam Accent on Selected Card */}
+                    {isSelected && (
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#C9B59C] to-transparent shadow-[0_0_12px_#C9B59C]" />
+                    )}
+
                     <div>
                       {/* Card Header */}
-                      <div className="flex items-center justify-between text-[11px] font-mono pb-2 border-b border-[#D9CFC7]">
-                        <span className="text-[#6B5E55]">{defect.category}</span>
-                        <span className={`px-2 py-0.5 rounded font-bold border text-[10px] ${defect.verdictColor}`}>
-                          {defect.verdict}
+                      <div className="flex items-center justify-between text-xs font-mono pb-3 border-b border-[#D9CFC7]">
+                        <span className="text-[#6B5E55] font-semibold">{defect.category}</span>
+                        <span className={`px-2.5 py-0.5 rounded-full font-bold border text-[10px] ${defect.verdictColor}`}>
+                          {defect.verdict === 'PASS' ? '✓ PASS' : defect.verdict}
                         </span>
                       </div>
 
                       {/* Card Body */}
-                      <div className="my-3">
-                        <div className="text-xl mb-1.5">{defect.sampleIcon}</div>
+                      <div className="my-4">
+                        <div className="w-11 h-11 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] flex items-center justify-center text-xl mb-3 shadow-2xs group-hover:scale-105 transition-transform">
+                          {defect.sampleIcon}
+                        </div>
                         <h4 className="text-base font-bold text-[#1C1815] uppercase tracking-tight">
                           {defect.title}
                         </h4>
-                        <p className="text-xs text-[#6B5E55] mt-1 leading-relaxed line-clamp-2">
+                        <p className="text-xs text-[#6B5E55] mt-1.5 leading-relaxed font-sans line-clamp-2">
                           {defect.description}
                         </p>
                       </div>
 
                       {/* Telemetry Chips */}
-                      <div className="bg-[#EFE9E3] p-2.5 rounded-xl border border-[#D9CFC7] font-mono text-[10px] space-y-1">
+                      <div className="bg-[#EFE9E3]/70 p-3 rounded-xl border border-[#D9CFC7] font-mono text-[10px] space-y-1.5">
                         <div className="flex justify-between">
                           <span className="text-[#6B5E55]">TENSOR COORDS:</span>
                           <span className="text-[#1C1815] font-bold">{defect.coords}</span>
@@ -1044,8 +887,8 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
                     </div>
 
                     {/* Card Footer */}
-                    <div className="pt-2 border-t border-[#D9CFC7] flex items-center justify-between text-[10px] font-mono">
-                      <span className="text-[#8C7D73] font-bold">{defect.badge}</span>
+                    <div className="pt-3.5 mt-3 border-t border-[#D9CFC7] flex items-center justify-between text-[11px] font-mono">
+                      <span className="text-[#8C7D73] font-semibold">{defect.badge}</span>
                       <span className="text-[#16A34A] font-bold">CONF: {defect.confidence}</span>
                     </div>
                   </div>
@@ -1054,18 +897,34 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
             </div>
           </div>
 
+          {/* Interactive Dot Navigation */}
+          <div className="flex items-center justify-center space-x-2 mt-6">
+            {DEFECT_DECK.map((defect, dotIdx) => (
+              <button
+                key={defect.id}
+                onClick={() => scrollToCard(dotIdx)}
+                title={`View ${defect.title}`}
+                className={`h-2.5 rounded-full transition-all duration-200 cursor-pointer ${
+                  dotIdx === activeDeckIndex
+                    ? 'w-8 bg-[#C9B59C] shadow-xs'
+                    : 'w-2.5 bg-[#D9CFC7] hover:bg-[#B8A389]'
+                }`}
+              />
+            ))}
+          </div>
+
           {/* Bottom Live Selected Inspector Link */}
-          <div className="mt-8 max-w-xl mx-auto p-4 rounded-2xl bg-[#F9F8F6] border border-[#D9CFC7] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 scroll-reveal">
+          <div className="mt-8 max-w-xl mx-auto p-4 rounded-2xl bg-[#FFFFFF] border border-[#D9CFC7] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 scroll-reveal">
             <div>
-              <div className="text-[10px] font-mono text-[#8C7D73]">SELECTED FOR TEST INSPECTION:</div>
-              <div className="text-xs font-bold text-[#1C1815] uppercase">{activeDefect.title}</div>
+              <div className="text-[10px] font-mono text-[#8C7D73] font-semibold">SELECTED SPECIMEN FOR LIVE INFERENCE:</div>
+              <div className="text-xs font-bold text-[#1C1815] uppercase mt-0.5">{activeDefect.title}</div>
             </div>
             <button
               onClick={onLaunchApp}
               data-cursor="pointer"
-              className="px-4 py-2 rounded-xl bg-[#C9B59C] hover:bg-[#B8A389] text-[#1C1815] font-bold text-xs uppercase tracking-wider whitespace-nowrap shadow-sm cursor-pointer transition-transform hover:scale-[1.02]"
+              className="px-5 py-2.5 rounded-xl bg-[#C9B59C] hover:bg-[#B8A389] text-[#1C1815] font-bold text-xs uppercase tracking-wider whitespace-nowrap shadow-sm cursor-pointer transition-transform hover:scale-[1.02]"
             >
-              Inspect in Live Console
+              Inspect in Live Console →
             </button>
           </div>
 
@@ -1073,124 +932,12 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          6. DUAL-STATE NEURAL DECODER & 4-STEP PIPELINE
+          5. THE DEEP TECHNICAL OPTICAL SHOWCASE (ORYZO.AI INSPIRED)
           ───────────────────────────────────────────────────────────── */}
-      <section className="py-20 border-b border-[#D9CFC7] bg-[#F9F8F6]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-3xl mx-auto mb-10 scroll-reveal">
-            <div className="sub1 text-[#8C7D73] mb-2 flex items-center justify-center space-x-2">
-              <Scan className="w-4 h-4 text-[#C9B59C]" />
-              <span>DUAL-STATE OPTICAL TRANSITION</span>
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#1C1815] tracking-tight uppercase">
-              Smart Neural Anomaly Flip
-            </h2>
-            <p className="text-xs sm:text-sm text-[#6B5E55] mt-2 max-w-lg mx-auto">
-              Flip between raw telecentric photon exposure and real-time Gemini neural tensor segmentation with cryptographic audit validation.
-            </p>
-          </div>
-
-          {/* Interactive 3D Flip Card */}
-          <div className="max-w-lg mx-auto h-[300px] perspective-1000 my-6 scroll-reveal">
-            <div
-              data-cursor="pointer"
-              onClick={handleFlipCard}
-              style={{
-                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                transformStyle: 'preserve-3d',
-                transition: 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-              className="relative w-full h-full cursor-pointer select-none"
-            >
-              {/* FRONT: RAW OPTICAL EXPOSURE */}
-              <div
-                style={{ backfaceVisibility: 'hidden' }}
-                className="absolute inset-0 w-full h-full rounded-3xl bg-[#EFE9E3] border border-[#D9CFC7] p-6 shadow-md flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between text-xs font-mono text-[#6B5E55] pb-3 border-b border-[#D9CFC7]">
-                    <span className="flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-[#C9B59C]" />
-                      <span>STATE 01: RAW SENSOR CAPTURE</span>
-                    </span>
-                    <span className="text-[#1C1815] font-bold">1/2400s • ISO 100</span>
-                  </div>
-
-                  <div className="my-5 p-4 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7]">
-                    <div className="text-[10px] font-mono text-[#6B5E55] mb-1">
-                      SENSOR PHOTONS PENDING SEGMENTATION:
-                    </div>
-                    <div className="font-mono text-base font-bold text-[#1C1815] tracking-wider truncate">
-                      {scrambleText}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="w-full py-3 rounded-xl bg-[#C9B59C] text-[#1C1815] font-bold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center space-x-2">
-                  <RotateCw className="w-4 h-4 animate-spin-slow" />
-                  <span>CLICK TO FLIP // INFER NEURAL TENSOR MAP</span>
-                </div>
-              </div>
-
-              {/* BACK: DECODED TENSOR MAP */}
-              <div
-                style={{
-                  backfaceVisibility: 'hidden',
-                  transform: 'rotateY(180deg)',
-                }}
-                className="absolute inset-0 w-full h-full rounded-3xl bg-[#EFE9E3] border-2 border-[#C9B59C] p-6 shadow-md flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between text-xs font-mono text-[#1C1815] pb-3 border-b border-[#D9CFC7]">
-                    <span className="flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-ping" />
-                      <span>STATE 02: NEURAL INFERENCE MAP</span>
-                    </span>
-                    <span className="bg-[#D97706]/10 px-2 py-0.5 rounded border border-[#D97706]/30 text-[#D97706] font-bold">
-                      VERDICT: REWORK (99.4%)
-                    </span>
-                  </div>
-
-                  <div className="my-5 p-4 rounded-xl bg-[#F9F8F6] border border-[#C9B59C]/40">
-                    <div className="text-[10px] font-mono text-[#8C7D73] mb-1">
-                      NORMALIZED BOUNDING BOX [YMIN, XMIN, YMAX, XMAX]:
-                    </div>
-                    <div className="font-mono text-sm font-bold text-[#1C1815] truncate">
-                      {scrambleText}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="w-full py-3 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7] text-[#1C1815] font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 shadow-sm">
-                  <RotateCw className="w-4 h-4 text-[#C9B59C]" />
-                  <span>CLICK TO FLIP // RETURN TO RAW SENSOR</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 4-Step Process Breadcrumbs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mt-12 scroll-reveal">
-            {[
-              { num: '01', title: 'TELECENTRIC CAPTURE', desc: '120 FPS high-exposure' },
-              { num: '02', title: 'GEMINI 3.8 FLASH', desc: 'Multi-tiered fallback' },
-              { num: '03', title: 'SUB-PIXEL TENSOR', desc: 'Normalized bounding box' },
-              { num: '04', title: 'PLC DIVERTER GATE', desc: '<14ms pneumatic fire' },
-            ].map((step, idx) => (
-              <div
-                key={idx}
-                className="p-3.5 rounded-xl bg-[#EFE9E3] border border-[#D9CFC7] text-left shadow-sm"
-              >
-                <div className="text-base font-black font-mono text-[#C9B59C] mb-1">{step.num}</div>
-                <div className="text-xs font-bold text-[#1C1815] uppercase">{step.title}</div>
-                <div className="text-[10px] text-[#6B5E55] mt-0.5">{step.desc}</div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
+      <OryzoShowcase
+        onLaunchInspector={onLaunchApp}
+        onQuickDemo={onQuickDemo}
+      />
 
       {/* ─────────────────────────────────────────────────────────────
           7. THE INDUSTRIAL ADVANTAGE (LEGACY VS NEXCAN)
@@ -1262,72 +1009,7 @@ export default function Hero({ onLaunchApp, onOpenLogin, onQuickDemo }) {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          8. FIELD VERIFIED TESTIMONIALS
-          ───────────────────────────────────────────────────────────── */}
-      <section className="py-20 border-b border-[#D9CFC7] bg-[#F9F8F6]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-3xl mx-auto mb-10 scroll-reveal">
-            <span className="sub1 text-[#8C7D73]">FIELD VERIFIED</span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1C1815] mt-1 uppercase">
-              Proven in Mission-Critical Cleanrooms
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            
-            <div className="scroll-reveal delay-100 p-6 rounded-2xl interactive-glass-card flex flex-col justify-between shadow-sm">
-              <p className="text-xs sm:text-sm text-[#6B5E55] italic leading-relaxed">
-                "Nexcan reduced our micro-crack solder escapes by 94% on our QFP line within 48 hours of initial deployment. The 14ms latency is unmatched."
-              </p>
-              <div className="mt-5 pt-3.5 border-t border-[#D9CFC7] flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-[#C9B59C] flex items-center justify-center font-bold text-xs text-[#1C1815]">
-                  SC
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-[#1C1815]">Dr. Sarah Chen</div>
-                  <div className="text-[10px] font-mono text-[#6B5E55]">Lead AOI Architect • Semiconductor Foundry</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="scroll-reveal delay-200 p-6 rounded-2xl interactive-glass-card flex flex-col justify-between shadow-sm">
-              <p className="text-xs sm:text-sm text-[#6B5E55] italic leading-relaxed">
-                "The automated ISO-9001 audit export saved our team 25+ hours per audit cycle. Every disposition is timestamped and cryptographically verified."
-              </p>
-              <div className="mt-5 pt-3.5 border-t border-[#D9CFC7] flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-[#C9B59C] flex items-center justify-center font-bold text-xs text-[#1C1815]">
-                  MK
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-[#1C1815]">Marcus Klein</div>
-                  <div className="text-[10px] font-mono text-[#6B5E55]">VP of Operations • Tier-1 Automotive Electronics</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="scroll-reveal delay-300 p-6 rounded-2xl interactive-glass-card flex flex-col justify-between shadow-sm">
-              <p className="text-xs sm:text-sm text-[#6B5E55] italic leading-relaxed">
-                "We replaced three legacy camera stations with a single Nexcan AI telecentric rig. The sub-millimeter bounding box tensor accuracy is unbelievable."
-              </p>
-              <div className="mt-5 pt-3.5 border-t border-[#D9CFC7] flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-[#C9B59C] flex items-center justify-center font-bold text-xs text-[#1C1815]">
-                  JP
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-[#1C1815]">Jean-Paul Dupont</div>
-                  <div className="text-[10px] font-mono text-[#6B5E55]">Quality Director • Medical Micro-Sensors</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* ─────────────────────────────────────────────────────────────
-          8.5 TEAM NEXUS FOUR LEADERSHIP & ARCHITECTS
+          7. TEAM NEXUS FOUR LEADERSHIP & ARCHITECTS
           ───────────────────────────────────────────────────────────── */}
       <section className="py-20 border-b border-[#D9CFC7] bg-[#EFE9E3]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

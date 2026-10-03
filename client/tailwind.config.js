@@ -80,6 +80,7 @@ export default {
       animation: {
         'scanline': 'scan 2.5s ease-in-out infinite',
         'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'spotlight': 'spotlight 2.2s ease 0.2s 1 forwards',
       },
       keyframes: {
         scan: {
@@ -89,6 +90,16 @@ export default {
         pulseGlow: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
+        },
+        spotlight: {
+          '0%': {
+            opacity: '0',
+            transform: 'translate(-72%, -62%) scale(0.6)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translate(-50%, -40%) scale(1)',
+          },
         },
       },
     },

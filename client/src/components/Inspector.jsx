@@ -195,49 +195,75 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
     <div className="space-y-6">
       
       {/* Test Presets Selector */}
-      <div className="p-5 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#D9CFC7] gap-2">
+      <div className="p-6 rounded-2xl bg-[#EFE9E3] border border-[#D9CFC7] shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#D9CFC7] gap-3">
           <div>
-            <h3 className="text-xs font-bold font-mono tracking-wider text-[#1C1815] uppercase flex items-center space-x-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#C9B59C]" />
-              <span>INDUSTRIAL QUALITY BENCHMARK PRESETS</span>
-            </h3>
-            <p className="text-[11px] text-[#6B5E55] mt-0.5">
-              Select verified test components to evaluate autonomous defect recognition across high-throughput assemblies.
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-[#C9B59C]"></span>
+              <h3 className="text-xs font-bold font-mono tracking-wider text-[#1C1815] uppercase">
+                BENCHMARK QUALITY SPECIMENS
+              </h3>
+            </div>
+            <p className="text-xs text-[#6B5E55] mt-1 leading-relaxed">
+              Select any calibrated test component below to instantly evaluate neural defect detection and tolerance analysis.
             </p>
           </div>
-          <div className="text-[10px] font-mono text-[#6B5E55] bg-[#F9F8F6] px-2.5 py-1 rounded-lg border border-[#D9CFC7]">
-            Model: Gemini 3.8 Flash Vision
+          <div className="flex items-center space-x-2 self-start sm:self-auto">
+            <span className="text-[11px] font-mono text-[#6B5E55] bg-[#F9F8F6] px-3 py-1 rounded-full border border-[#D9CFC7] shadow-2xs">
+              Vision Engine: <strong className="text-[#1C1815]">Gemini 3.8 Flash</strong>
+            </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-4">
           {SAMPLE_PRESETS.map((preset) => {
             const isSelected = componentHint === preset.hint;
             return (
               <button
                 key={preset.id}
                 onClick={() => handleSelectPreset(preset)}
-                className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer shadow-sm ${
+                className={`relative text-left p-4 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? 'border-[#C9B59C] bg-[#F9F8F6] ring-2 ring-[#C9B59C]'
-                    : 'border-[#D9CFC7] bg-[#F9F8F6] hover:border-[#C9B59C]/60 hover:bg-[#EFE9E3]'
+                    ? 'border-[#C9B59C] bg-[#FFFFFF] shadow-sm ring-2 ring-[#C9B59C]/50'
+                    : 'border-[#D9CFC7] bg-[#F9F8F6] hover:border-[#C9B59C] hover:bg-[#FFFFFF] hover:shadow-xs'
                 }`}
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                    preset.expectedVerdict === 'PASS' 
-                      ? 'bg-[#16A34A]/10 text-[#16A34A] border-[#16A34A]/30'
-                      : preset.expectedVerdict === 'REWORK'
-                      ? 'bg-[#D97706]/10 text-[#D97706] border-[#D97706]/30'
-                      : 'bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/30'
-                  }`}>
-                    {preset.expectedVerdict}
-                  </span>
-                  <span className="text-[10px] text-[#8C7D73] font-mono">{preset.category}</span>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold tracking-tight ${
+                      preset.expectedVerdict === 'PASS' 
+                        ? 'bg-[#16A34A]/10 text-[#16A34A] border-[#16A34A]/25'
+                        : preset.expectedVerdict === 'REWORK'
+                        ? 'bg-[#D97706]/10 text-[#D97706] border-[#D97706]/25'
+                        : 'bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/25'
+                    }`}>
+                      {preset.expectedVerdict === 'PASS' ? '✓ PASS' : preset.expectedVerdict}
+                    </span>
+                    <span className="text-[10px] text-[#8C7D73] font-mono font-medium">{preset.category}</span>
+                  </div>
+
+                  <div className="text-xs font-bold text-[#1C1815] leading-snug">
+                    {preset.title}
+                  </div>
+                  
+                  <p className="text-[11px] text-[#6B5E55] line-clamp-2 mt-1.5 leading-relaxed font-sans">
+                    {preset.description}
+                  </p>
                 </div>
-                <div className="text-xs font-bold text-[#1C1815] truncate">{preset.title}</div>
-                <div className="text-[10px] text-[#6B5E55] line-clamp-2 mt-0.5">{preset.description}</div>
+
+                <div className="mt-3 pt-2.5 border-t border-[#D9CFC7]/50 flex items-center justify-between text-[10px] font-mono">
+                  {isSelected ? (
+                    <span className="text-[#1C1815] font-semibold flex items-center space-x-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]"></span>
+                      <span>Active Specimen</span>
+                    </span>
+                  ) : (
+                    <span className="text-[#8C7D73] hover:text-[#1C1815] transition-colors">
+                      Click to load →
+                    </span>
+                  )}
+                  <span className="text-[#8C7D73]">ISO-9001</span>
+                </div>
               </button>
             );
           })}
@@ -320,26 +346,26 @@ export default function Inspector({ onInspectionComplete, onOpenCertModal, curre
               
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
                 <div className="sm:col-span-8">
-                  <label className="text-[10px] font-mono text-[#6B5E55] block mb-1">
-                    COMPONENT DESCRIPTION / SPECIFICATION HINT
+                  <label className="text-[10px] font-mono text-[#6B5E55] block mb-1 font-semibold">
+                    COMPONENT SPECIFICATION / HINT
                   </label>
                   <input
                     type="text"
                     value={componentHint}
                     onChange={(e) => setComponentHint(e.target.value)}
                     placeholder="e.g. Solder leads, Turbine blade, Hermetic seal"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7] text-xs text-[#1C1815] placeholder-[#6B5E55]/50 focus:outline-none focus:border-[#C9B59C] font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#FFFFFF] border border-[#D9CFC7] text-xs text-[#1C1815] placeholder-[#6B5E55]/60 focus:outline-none focus:ring-2 focus:ring-[#C9B59C]/50 focus:border-[#C9B59C] font-mono transition-all shadow-2xs"
                   />
                 </div>
 
                 <div className="sm:col-span-4">
-                  <label className="text-[10px] font-mono text-[#6B5E55] block mb-1">
+                  <label className="text-[10px] font-mono text-[#6B5E55] block mb-1 font-semibold">
                     TOLERANCE THRESHOLD
                   </label>
                   <select
                     value={toleranceLimit}
                     onChange={(e) => setToleranceLimit(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#F9F8F6] border border-[#D9CFC7] text-xs text-[#1C1815] focus:outline-none focus:border-[#C9B59C] font-mono cursor-pointer"
+                    className="w-full px-3 py-2.5 rounded-xl bg-[#FFFFFF] border border-[#D9CFC7] text-xs text-[#1C1815] focus:outline-none focus:ring-2 focus:ring-[#C9B59C]/50 focus:border-[#C9B59C] font-mono cursor-pointer transition-all shadow-2xs"
                   >
                     <option value="0.05">±0.05 mm (Strict Class 3)</option>
                     <option value="0.10">±0.10 mm (Balanced SMT)</option>
